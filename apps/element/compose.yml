@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "Element"
      yantra.logo: "QmVdbRUyvZpXCsVJAs7fo1PJPXaPHnWRtSCFx6jFTGaG5i"
-     yantra.category: "productivity"
+     yantra.category: "productivity,security"
      yantra.port: "${ELEMENT_PORT:-8089}"
      yantra.description: "Secure and decentralized Matrix chat client for communication"
      yantra.website: "https://element.io"
      yantra.github: "https://github.com/element-hq/element-web"
-     yantra.tags: "matrix,chat,messaging,communication,encryption"
     ports:
       - "${ELEMENT_PORT:-8089}:80"
     volumes:

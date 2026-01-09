@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "Stirling-PDF"
      yantra.logo: "QmVdbRUyvZpXCsVJAs7fo1PJPXaPHnWRtSCFx6jFTGaG5i"
-     yantra.category: "tools"
+     yantra.category: "tools,utility"
      yantra.port: "${STIRLING_PDF_PORT:-8085}"
      yantra.description: "Powerful locally hosted web-based PDF manipulation tool"
      yantra.website: "https://github.com/Stirling-Tools/Stirling-PDF"
      yantra.github: "https://github.com/Stirling-Tools/Stirling-PDF"
-     yantra.tags: "pdf,manipulation,conversion,tools"
     ports:
       - "${STIRLING_PDF_PORT:-8085}:8080"
     volumes:

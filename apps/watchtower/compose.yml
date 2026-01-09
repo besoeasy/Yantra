@@ -5,11 +5,10 @@ services:
     labels:
      yantra.name: "Watchtower"
      yantra.logo: "QmfCtZ3ij2PgQxv5pn5ymEFCgQiyiSXfvZnfk4LzCjr4NG"
-     yantra.category: "tools"
+     yantra.category: "tools,utility"
      yantra.description: "Automatically update running Docker containers"
      yantra.website: "https://containrrr.dev/watchtower"
      yantra.github: "https://github.com/containrrr/watchtower"
-     yantra.tags: "automation,updates,containers,maintenance"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:

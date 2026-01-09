@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "ConvertX"
      yantra.logo: "QmVdbRUyvZpXCsVJAs7fo1PJPXaPHnWRtSCFx6jFTGaG5i"
-     yantra.category: "tools"
+     yantra.category: "tools,utility"
      yantra.port: "${CONVERTX_PORT:-8183}"
      yantra.description: "Self-hosted file conversion tool supporting multiple formats"
      yantra.website: "https://github.com/C4illin/ConvertX"
      yantra.github: "https://github.com/C4illin/ConvertX"
-     yantra.tags: "conversion,files,utility,format"
     ports:
       - "${CONVERTX_PORT:-8183}:3000"
     restart: unless-stopped

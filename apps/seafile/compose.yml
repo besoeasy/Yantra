@@ -16,12 +16,11 @@ services:
     labels:
      yantra.name: "Seafile"
      yantra.logo: "QmP9vL2Xk8Wq3Nh6Tz7Fc4Mj5Rb1Gd8Ys2Kp6Qx9Vw3Hz"
-     yantra.category: "productivity"
+     yantra.category: "productivity,utility"
      yantra.port: "${SEAFILE_PORT:-8086}"
      yantra.description: "Open source file sync and share platform with encryption"
      yantra.website: "https://www.seafile.com/en/home/"
      yantra.github: "https://github.com/haiwen/seafile"
-     yantra.tags: "files,sync,storage,collaboration,cloud"
     ports:
       - "${SEAFILE_PORT:-8086}:80"
     volumes:

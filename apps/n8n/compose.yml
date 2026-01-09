@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "n8n"
      yantra.logo: "QmQEGWyJCYGJ63DLH4gga8kgWLqzrS4CAHVFghc4s7rWti"
-     yantra.category: "productivity"
+     yantra.category: "productivity,tools"
      yantra.port: "5678"
      yantra.description: "Workflow automation platform with AI and 400+ integrations"
      yantra.website: "https://docs.n8n.io"
      yantra.github: "https://github.com/n8n-io/n8n"
-     yantra.tags: "automation,workflow,integration,ai,nocode"
     ports:
       - "5678:5678"
     volumes:

@@ -240,8 +240,7 @@ app.get('/api/containers', async (req, res) => {
           port: appLabels.port || null,
           description: appLabels.description || '',
           docs: appLabels.docs || null,
-          github: appLabels.github || null,
-          tags: appLabels.tags ? appLabels.tags.split(',').map(t => t.trim()) : []
+          github: appLabels.github || null
         }
       };
     });
@@ -309,8 +308,7 @@ app.get('/api/containers/:id', async (req, res) => {
           port: appLabels.port || null,
           description: appLabels.description || '',
           docs: appLabels.docs || null,
-          github: appLabels.github || null,
-          tags: appLabels.tags ? appLabels.tags.split(',').map(t => t.trim()) : []
+          github: appLabels.github || null
         }
       }
     });
@@ -385,7 +383,6 @@ app.get('/api/apps', async (req, res) => {
             website: labels.website || null, // Map website label
             docs: labels.docs || null,
             github: labels.github || null,
-            tags: labels.tags ? labels.tags.split(',').map(t => t.trim()) : [],
             path: appPath,
             composePath: composePath,
             environment: envVars

@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "Gitea"
      yantra.logo: "QmTX3W7JAmw9xVy4G9CtBzk8UmbcxWijAKBqPzVrgUCRo8"
-     yantra.category: "development"
+     yantra.category: "development,productivity"
      yantra.port: "3000"
      yantra.description: "Self-hosted Git service with code review and CI/CD"
      yantra.website: "https://docs.gitea.io"
      yantra.github: "https://github.com/go-gitea/gitea"
-     yantra.tags: "git,version-control,code-review,ci-cd"
     ports:
       - "3000:3000"
       - "2222:22"

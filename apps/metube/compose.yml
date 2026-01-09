@@ -13,12 +13,11 @@ services:
     labels:
       yantra.name: "MeTube"
       yantra.logo: "QmYSoiyanJ26mbB4CVZXGNEk1tfGjNaEnf3hBQyhtgA85w"
-      yantra.category: "media"
+      yantra.category: "media,tools,utility"
       yantra.port: "${METUBE_PORT:-8081}"
       yantra.description: "Web GUI for yt-dlp/youtube-dl with playlist support."
       yantra.website: "https://github.com/alexta69/metube"
       yantra.github: "https://github.com/alexta69/metube"
-      yantra.tags: "youtube,downloader,media,yt-dlp"
 
 volumes:
   metube_downloads:

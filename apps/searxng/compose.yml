@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "SearXNG"
      yantra.logo: "QmdNaDHV8YPXxMZ8RCVzHGaLn2zSdJaLLbzxLSkPbCzSsX"
-     yantra.category: "tools"
+     yantra.category: "tools,security"
      yantra.port: "8083"
      yantra.description: "Privacy-focused metasearch engine aggregating results"
      yantra.website: "https://docs.searxng.org"
      yantra.github: "https://github.com/searxng/searxng"
-     yantra.tags: "search,privacy,metasearch,security"
     ports:
       - "8083:8080"
     volumes:

@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "StreamBox"
      yantra.logo: "QmVdbRUyvZpXCsVJAs7fo1PJPXaPHnWRtSCFx6jFTGaG5i"
-     yantra.category: "media"
+     yantra.category: "media,tools"
      yantra.port: "${STREAMBOX_PORT_WEB:-6798}"
      yantra.description: "Media streaming and sharing platform with Telegram integration"
      yantra.website: "https://github.com/besoeasy/streambox"
      yantra.github: "https://github.com/besoeasy/streambox"
-     yantra.tags: "streaming,media,telegram,sharing"
     ports:
       - "${STREAMBOX_PORT_WEB:-6798}:6798"
       - "${STREAMBOX_PORT_API:-6799}:6799"

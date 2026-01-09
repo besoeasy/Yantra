@@ -22,7 +22,8 @@ All apps must include the following labels to ensure proper categorization and d
 3. **yantra.category** (Required) - App category for organization
    - Valid categories: `"network"`, `"tools"`, `"productivity"`, `"utility"`, `"media"`, `"development"`, `"security"`
    - Use lowercase only
-   - Example: `"network"`, `"tools"`
+   - Can specify up to 3 categories as comma-separated values
+   - Example: `"network,security"`, `"tools,utility"`, `"productivity,security,utility"`
 
 4. **yantra.port** (Optional) - Primary access port for the app
    - Only required for apps with web UI

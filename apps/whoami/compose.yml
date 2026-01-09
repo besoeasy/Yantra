@@ -10,10 +10,9 @@ services:
     labels:
      yantra.name: "Whoami"
      yantra.logo: "QmSMrzHU5og4PgNF1hNRSCcjwBX3LjLopL3p3Fxhk1sJSb"
-     yantra.category: "utility"
+     yantra.category: "tools,utility"
      yantra.port: "${WHOAMI_PORT:-8081}"
      yantra.description: "Tiny HTTP service that prints system information - perfect for testing"
      yantra.website: "https://github.com/traefik/whoami"
      yantra.github: "https://github.com/traefik/whoami"
-     yantra.tags: "testing, http, utility"
 

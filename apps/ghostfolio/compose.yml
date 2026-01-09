@@ -5,12 +5,11 @@ services:
     labels:
      yantra.name: "Ghostfolio"
      yantra.logo: "QmVdbRUyvZpXCsVJAs7fo1PJPXaPHnWRtSCFx6jFTGaG5i"
-     yantra.category: "productivity"
+     yantra.category: "productivity,utility"
      yantra.port: "3333"
      yantra.description: "Open source wealth management for portfolio tracking"
      yantra.website: "https://ghostfol.io"
      yantra.github: "https://github.com/ghostfolio/ghostfolio"
-     yantra.tags: "finance,portfolio,wealth,investing,tracking"
     ports:
       - "3333:3333"
     volumes:
