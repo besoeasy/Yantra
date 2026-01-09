@@ -177,8 +177,8 @@ app.use(express.static(path.join(__dirname, 'ui')));
 function parseAppLabels(labels) {
   const appLabels = {};
   for (const [key, value] of Object.entries(labels || {})) {
-    if (key.startsWith('app.')) {
-      const labelName = key.replace('app.', '');
+    if (key.startsWith('yantra.')) {
+      const labelName = key.replace('yantra.', '');
       appLabels[labelName] = value;
     }
   }
@@ -348,7 +348,7 @@ app.get('/api/apps', async (req, res) => {
           const labels = {};
           
           // Simple regex to extract labels (works for most cases)
-          const labelRegex = /app\.(\w+):\s*["'](.+?)["']/g;
+          const labelRegex = /yantra\.(\w+):\s*["'](.+?)["']/g;
           let match;
           while ((match = labelRegex.exec(composeContent)) !== null) {
             labels[match[1]] = match[2];
