@@ -91,3 +91,11 @@ curl -X POST https://filedrop.besoeasy.com/remoteupload \
 ```
 
 Use the returned `cid` value for the `yantra.logo` label in compose files.
+
+## Check for port conflicts
+
+Check for port conflicts using the provided script:
+
+```bash
+node getusedports.js
+```
