@@ -45,12 +45,3 @@ All apps must include the following labels to ensure proper categorization and d
    - Example: `"https://github.com/pi-hole/pi-hole"`
 
 5. Follow best practices for security, such as using non-root users and limiting container capabilities.
-
-## User Configurable Environment Variables
-
-To ensure users can configure essential settings like Timezone and Passwords, always include the following in your `compose.yml` environment section using the standard variable substitution syntax:
-
-```yaml
-environment:
-  - VAR1=${VAR1: -Test}
-```

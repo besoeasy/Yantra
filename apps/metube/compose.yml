@@ -5,7 +5,6 @@ services:
     hostname: metube
     environment:
       - TZ=${TZ:-UTC}
-      - YTDL_OPTIONS=${YTDL_OPTIONS:-}
     volumes:
       - metube_downloads:/downloads
     ports:
