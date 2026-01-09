@@ -14,7 +14,7 @@ Apps templates located in /apps/, Apps are docker apps which have templates in /
 
 ## General Rules
 
-1. **Ports**: Avoid rootful ports (80, 443). Use high-numbered ports (8000+). Run `node getusedports.js` to check for conflicts.
+1. **Ports**: Avoid rootful ports (80, 443). Use high-numbered ports (5000+). Run `node check.js` to check for conflicts.
 2. **Configuration**: Use environment variables with defaults (e.g., `${VAR_NAME:-default_value}`).
 3. **Storage**: Use named volumes only. Never mount to host paths directly.
 4. **Security**: Follow container best practices - non-root users, limited capabilities.
@@ -67,11 +67,3 @@ All apps must include the following labels to ensure proper categorization and d
 # GitHub Copilot Instructions
 
 After edits make sure to update index.html if we change anything.
-
-## Check for port conflicts
-
-Check for port conflicts using the provided script:
-
-```bash
-node getusedports.js
-```
