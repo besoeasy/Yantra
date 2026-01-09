@@ -14,14 +14,14 @@ services:
       - "4001:4001/udp"
     restart: unless-stopped
     labels:
-      - "yantra.name=File Drop"
-      - "yantra.logo=QmT5eKcAxWshV9jZfhzGK6xd5SipD1jMADe5EeBur8hyA2"
-      - "yantra.category=Sharing"
-      - "yantra.port=3232"
-      - "yantra.description=Decentralized file-sharing solution for Nostr and the web."
-      - "yantra.website=https://github.com/besoeasy/file-drop"
-      - "yantra.github=https://github.com/besoeasy/file-drop"
-      - "yantra.tags=nostr,ipfs,sharing,files"
+      yantra.name: "File Drop"
+      yantra.logo: "QmT5eKcAxWshV9jZfhzGK6xd5SipD1jMADe5EeBur8hyA2"
+      yantra.category: "Sharing"
+      yantra.port: "3232"
+      yantra.description: "Decentralized file-sharing solution for Nostr and the web."
+      yantra.website: "https://github.com/besoeasy/file-drop"
+      yantra.github: "https://github.com/besoeasy/file-drop"
+      yantra.tags: "nostr,ipfs,sharing,files"
 
 volumes:
   filedrop_data:

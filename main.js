@@ -368,10 +368,17 @@ app.get('/api/apps', async (req, res) => {
           const composeContent = await fsPromises.readFile(composePath, 'utf8');
           const labels = {};
 
-          // Simple regex to extract labels (works for most cases)
-          const labelRegex = /yantra\.(\w+):\s*["'](.+?)["']/g;
+          // Simple regex to extract labels (works for both formats)
+          // Format 1: yantra.name: "value"
+          const labelRegex = /yantra\.([\w-]+):\s*["'](.+?)["']/g;
           let match;
           while ((match = labelRegex.exec(composeContent)) !== null) {
+            labels[match[1]] = match[2];
+          }
+
+          // Format 2: - "yantra.name=value"
+          const arrayLabelRegex = /-\s*["']yantra\.([\w-]+)=(.+?)["']/g;
+          while ((match = arrayLabelRegex.exec(composeContent)) !== null) {
             labels[match[1]] = match[2];
           }
 
