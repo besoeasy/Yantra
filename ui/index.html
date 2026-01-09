@@ -519,7 +519,8 @@
                                     </div>
                                 </div>
 
-                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">{{ app.description || 'No description' }}</p>
+                                <p class="text-sm text-gray-600 mb-4 leading-relaxed">{{ app.description || 'No
+                                    description' }}</p>
 
                                 <div class="flex flex-wrap gap-2 mb-5">
                                     <span v-for="tag in app.tags.slice(0, 3)" :key="tag"
@@ -600,7 +601,7 @@
                     selectedApp: null,
                     envValues: {},
                     appSearch: '',
-                    apiUrl: 'http://localhost:3000',
+                    apiUrl: '',
                     version: 'loading...'
                 }
             }, computed: {
