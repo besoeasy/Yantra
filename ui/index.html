@@ -295,7 +295,7 @@
                                 </div>
 
                                 <div class="flex gap-3">
-                                    <a v-if="container.app.port" :href="`http://localhost:${container.app.port}`"
+                                    <a v-if="container.app.port" :href="appUrl(container.app.port)"
                                         target="_blank"
                                         class="flex-1 px-6 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-semibold text-center transition-all smooth-shadow">
                                         Open App
@@ -667,6 +667,23 @@
                 }, 10000);
             },
             methods: {
+                appUrl(port) {
+                    const protocol = window.location.protocol || 'http:';
+                    let host = window.location.hostname || 'localhost';
+
+                    // IPv6 hostnames must be wrapped in brackets when used with an explicit port
+                    if (host.includes(':') && !host.startsWith('[')) {
+                        host = `[${host}]`;
+                    }
+
+                    const portString = String(port ?? '').trim();
+                    const portMatch = portString.match(/\d+/);
+                    if (!portMatch) {
+                        return `${protocol}//${host}`;
+                    }
+
+                    return `${protocol}//${host}:${portMatch[0]}`;
+                },
                 async fetchVersion() {
                     try {
                         const response = await fetch(`${this.apiUrl}/api/health`);
