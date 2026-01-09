@@ -33,13 +33,13 @@ function log(level, message, ...args) {
     message,
     args: args.length > 0 ? args : undefined
   };
-  
+
   // Add to logs array (circular buffer)
   logs.push(logEntry);
   if (logs.length > MAX_LOGS) {
     logs.shift(); // Remove oldest log
   }
-  
+
   // Also log to console
   const formattedMessage = args.length > 0 ? `${message} ${args.join(' ')}` : message;
   if (level === 'error') {
@@ -56,11 +56,11 @@ async function getSystemArchitecture() {
   if (systemArchitecture) {
     return systemArchitecture;
   }
-  
+
   try {
     const { stdout } = await execPromise('uname -m');
     const arch = stdout.trim();
-    
+
     // Map common architecture names to Docker platform names
     const archMap = {
       'x86_64': 'amd64',
@@ -70,7 +70,7 @@ async function getSystemArchitecture() {
       'i386': '386',
       'i686': '386'
     };
-    
+
     systemArchitecture = archMap[arch] || arch;
     log('info', `🏗️  Detected system architecture: ${arch} (${systemArchitecture})`);
     return systemArchitecture;
@@ -87,52 +87,52 @@ async function checkImageArchitectureSupport(imageName) {
   try {
     const arch = await getSystemArchitecture();
     log('info', `🔍 Checking architecture support for ${imageName} on ${arch}`);
-    
+
     // Try to inspect the image manifest to check supported platforms
     // First, try to pull manifest without actually pulling the image
     const command = `docker image inspect ${imageName} --format='{{.Architecture}}' 2>/dev/null || docker manifest inspect ${imageName} 2>/dev/null`;
-    
+
     try {
       const { stdout } = await execPromise(command);
       const output = stdout.trim();
-      
+
       // If we get architecture directly
       if (output && !output.includes('{') && !output.includes('[')) {
         const imageArch = output.toLowerCase();
         log('info', `  Image architecture: ${imageArch}`);
-        
+
         // Check if architectures match
-        if (imageArch === arch || 
-            (imageArch === 'amd64' && arch === 'amd64') ||
-            (imageArch === 'arm64' && arch === 'arm64')) {
+        if (imageArch === arch ||
+          (imageArch === 'amd64' && arch === 'amd64') ||
+          (imageArch === 'arm64' && arch === 'arm64')) {
           return { supported: true, imageArch, systemArch: arch };
         } else {
           return { supported: false, imageArch, systemArch: arch };
         }
       }
-      
+
       // If we get a manifest (JSON), parse it for supported platforms
       if (output.includes('{')) {
         try {
           const manifest = JSON.parse(output);
           const manifests = manifest.manifests || [];
-          
+
           const supportedArchs = manifests
             .map(m => m.platform?.architecture)
             .filter(a => a);
-          
+
           log('info', `  Supported architectures: ${supportedArchs.join(', ')}`);
-          
-          const isSupported = supportedArchs.some(a => 
-            a === arch || 
+
+          const isSupported = supportedArchs.some(a =>
+            a === arch ||
             (a === 'amd64' && arch === 'amd64') ||
             (a === 'arm64' && arch === 'arm64')
           );
-          
-          return { 
-            supported: isSupported, 
-            imageArch: supportedArchs.join(', '), 
-            systemArch: arch 
+
+          return {
+            supported: isSupported,
+            imageArch: supportedArchs.join(', '),
+            systemArch: arch
           };
         } catch (parseError) {
           log('error', '  Failed to parse manifest:', parseError.message);
@@ -142,7 +142,7 @@ async function checkImageArchitectureSupport(imageName) {
       // If inspection fails, the image might not be available locally or remotely
       log('info', `  Could not inspect image ${imageName}, will attempt pull`);
     }
-    
+
     // If we can't determine from manifest, we'll try to pull and see if it fails
     return { supported: 'unknown', imageArch: 'unknown', systemArch: arch };
   } catch (error) {
@@ -217,12 +217,12 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/logs', (req, res) => {
   const limit = parseInt(req.query.limit) || MAX_LOGS;
   const level = req.query.level; // Optional filter by level
-  
+
   let filteredLogs = logs;
   if (level) {
     filteredLogs = logs.filter(log => log.level === level);
   }
-  
+
   res.json({
     success: true,
     count: filteredLogs.length,
@@ -237,10 +237,10 @@ app.get('/api/containers', async (req, res) => {
   try {
     const containers = await docker.listContainers({ all: true });
     log('info', `📦 [GET /api/containers] Found ${containers.length} containers`);
-    
+
     const formattedContainers = containers.map(container => {
       const appLabels = parseAppLabels(container.Labels);
-      
+
       return {
         id: container.Id,
         name: container.Names[0]?.replace('/', '') || 'unknown',
@@ -249,7 +249,8 @@ app.get('/api/containers', async (req, res) => {
         status: container.Status,
         created: container.Created,
         ports: container.Ports,
-        labels: appLabels,
+        labels: container.Labels, // Keep original labels for filtering
+        appLabels: appLabels,
         // Add computed fields for easier UI access
         app: {
           name: appLabels.name || container.Names[0]?.replace('/', '') || 'unknown',
@@ -264,11 +265,31 @@ app.get('/api/containers', async (req, res) => {
       };
     });
 
-    log('info', `✅ [GET /api/containers] Returning ${formattedContainers.length} formatted containers`);
+    // Filter out auxiliary containers (sidecars)
+    // Identify stacks that have at least one explicit Yantra app
+    const yantraProjects = new Set();
+    formattedContainers.forEach(c => {
+      if (c.appLabels.name && c.labels['com.docker.compose.project']) {
+        yantraProjects.add(c.labels['com.docker.compose.project']);
+      }
+    });
+
+    // Filter: Show container IF:
+    // 1. It has a visible Yantra name label
+    // 2. OR it does NOT belong to a project that has a Yantra app (unmanaged/external containers)
+    const filteredContainers = formattedContainers.filter(c => {
+      const hasYantraLabel = !!c.appLabels.name;
+      const project = c.labels['com.docker.compose.project'];
+      const isPartOfYantraStack = project && yantraProjects.has(project);
+
+      return hasYantraLabel || !isPartOfYantraStack;
+    });
+
+    log('info', `✅ [GET /api/containers] Returning ${filteredContainers.length} formatted containers (filtered from ${containers.length})`);
     res.json({
       success: true,
-      count: formattedContainers.length,
-      containers: formattedContainers
+      count: filteredContainers.length,
+      containers: filteredContainers
     });
   } catch (error) {
     log('error', '❌ [GET /api/containers] Error:', error.message);
@@ -332,28 +353,28 @@ app.get('/api/apps', async (req, res) => {
     // Read all directories in /apps
     const entries = await fsPromises.readdir(appsDir, { withFileTypes: true });
     log('info', `🏪 [GET /api/apps] Found ${entries.length} entries in apps directory`);
-    
+
     for (const entry of entries) {
       if (entry.isDirectory()) {
         const appPath = path.join(appsDir, entry.name);
         const composePath = path.join(appPath, 'compose.yml');
-        
+
         // Check if compose.yml exists
         try {
           await fsPromises.access(composePath);
           log('info', `  ✓ Found compose.yml for: ${entry.name}`);
-          
+
           // Read and parse compose file to extract labels
           const composeContent = await fsPromises.readFile(composePath, 'utf8');
           const labels = {};
-          
+
           // Simple regex to extract labels (works for most cases)
           const labelRegex = /yantra\.(\w+):\s*["'](.+?)["']/g;
           let match;
           while ((match = labelRegex.exec(composeContent)) !== null) {
             labels[match[1]] = match[2];
           }
-          
+
           // Extract environment variables
           const envVars = [];
           const envRegex = /-\s+([A-Z_]+)=\$\{([A-Z_]+):?-?([^}]*)\}/g;
@@ -364,7 +385,7 @@ app.get('/api/apps', async (req, res) => {
               default: match[3] || ''
             });
           }
-          
+
           apps.push({
             id: entry.name,
             name: labels.name || entry.name,
@@ -433,7 +454,7 @@ app.get('/api/apps/:id/check-arch', async (req, res) => {
 
     // Check architecture support
     const archCheck = await checkImageArchitectureSupport(imageName);
-    
+
     log('info', `✅ [GET /api/apps/:id/check-arch] Architecture check complete`);
     res.json({
       success: true,
@@ -461,7 +482,7 @@ app.post('/api/deploy', async (req, res) => {
     if (environment) {
       log('info', `🚀 [POST /api/deploy] Custom environment:`, environment);
     }
-    
+
     if (!appId) {
       log('error', '❌ [POST /api/deploy] No appId provided');
       return res.status(400).json({
@@ -492,7 +513,7 @@ app.post('/api/deploy', async (req, res) => {
     if (imageName) {
       log('info', `🚀 [POST /api/deploy] Checking architecture support for image: ${imageName}`);
       const archCheck = await checkImageArchitectureSupport(imageName);
-      
+
       if (archCheck.supported === false) {
         log('error', `❌ [POST /api/deploy] Architecture not supported for ${appId}`);
         return res.status(400).json({
@@ -525,7 +546,7 @@ app.post('/api/deploy', async (req, res) => {
     // Deploy using docker compose
     const command = `docker compose -f "${composePath}" up -d`;
     log('info', `🚀 [POST /api/deploy] Executing: ${command}`);
-    
+
     try {
       const { stdout, stderr } = await execPromise(command, {
         cwd: appPath,
@@ -549,19 +570,19 @@ app.post('/api/deploy', async (req, res) => {
     } catch (error) {
       log('error', `❌ [POST /api/deploy] Deployment failed for ${appId}:`, error.message);
       log('error', `   stderr: ${error.stderr}`);
-      
+
       // Check if the error is architecture-related
       const isArchError = error.stderr && (
         error.stderr.includes('no matching manifest') ||
         error.stderr.includes('platform') ||
         error.stderr.includes('architecture')
       );
-      
+
       res.status(500).json({
         success: false,
         error: isArchError ? 'Architecture not supported' : 'Deployment failed',
-        message: isArchError 
-          ? 'This image does not support your system architecture' 
+        message: isArchError
+          ? 'This image does not support your system architecture'
           : error.message,
         stderr: error.stderr
       });
@@ -581,17 +602,17 @@ app.get('/api/images', async (req, res) => {
   try {
     const images = await docker.listImages();
     const containers = await docker.listContainers({ all: true });
-    
+
     log('info', `🖼️  [GET /api/images] Found ${images.length} images`);
-    
+
     // Create a set of image IDs used by containers
     const usedImageIds = new Set(containers.map(c => c.ImageID));
-    
+
     const formattedImages = images.map(image => {
       const isUsed = usedImageIds.has(image.Id);
       const repoTags = image.RepoTags || ['<none>:<none>'];
       const size = (image.Size / (1024 * 1024)).toFixed(2); // Convert to MB
-      
+
       return {
         id: image.Id,
         shortId: image.Id.substring(7, 19),
@@ -607,7 +628,7 @@ app.get('/api/images', async (req, res) => {
     // Sort by size (largest first) and separate used from unused
     const usedImages = formattedImages.filter(img => img.isUsed).sort((a, b) => b.sizeBytes - a.sizeBytes);
     const unusedImages = formattedImages.filter(img => !img.isUsed).sort((a, b) => b.sizeBytes - a.sizeBytes);
-    
+
     const totalSize = formattedImages.reduce((sum, img) => sum + img.sizeBytes, 0);
     const unusedSize = unusedImages.reduce((sum, img) => sum + img.sizeBytes, 0);
 
@@ -638,7 +659,7 @@ app.delete('/api/images/:id', async (req, res) => {
   try {
     const image = docker.getImage(req.params.id);
     const info = await image.inspect();
-    
+
     log('info', `🗑️  [DELETE /api/images/:id] Image tags: ${info.RepoTags}`);
 
     // Remove image
@@ -662,20 +683,62 @@ app.delete('/api/images/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/containers/:id - Remove container and its volumes
+// DELETE /api/containers/:id - Remove container (or stack if part of an app)
 app.delete('/api/containers/:id', async (req, res) => {
   log('info', `🗑️  [DELETE /api/containers/:id] Remove request for: ${req.params.id}`);
   try {
     const container = docker.getContainer(req.params.id);
     const info = await container.inspect();
     const containerName = info.Name.replace('/', '');
-    log('info', `🗑️  [DELETE /api/containers/:id] Container name: ${containerName}`);
+    const labels = info.Config.Labels || {};
+    const composeProject = labels['com.docker.compose.project'];
+
+    log('info', `🗑️  [DELETE /api/containers/:id] Container: ${containerName}, Project: ${composeProject || 'none'}`);
+
+    // If part of a compose project, check if it's a managed app
+    if (composeProject) {
+      const appsDir = path.join(__dirname, 'apps');
+      const appPath = path.join(appsDir, composeProject);
+      const composePath = path.join(appPath, 'compose.yml');
+
+      try {
+        await fsPromises.access(composePath);
+        log('info', `🗑️  [DELETE /api/containers/:id] Found managed app at ${appPath}, shutting down stack...`);
+
+        // Execute docker compose down
+        const command = `docker compose down -v`; // -v removes named volumes declared in 'volumes' section
+
+        const { stdout, stderr } = await execPromise(command, {
+          cwd: appPath,
+          env: {
+            ...process.env,
+            DOCKER_HOST: `unix://${socketPath}`
+          }
+        });
+
+        log('info', `✅ [DELETE /api/containers/:id] Stack removal successful`);
+        return res.json({
+          success: true,
+          message: `App stack '${composeProject}' removed successfully`,
+          container: containerName,
+          stackRemoved: true,
+          volumesRemoved: [], // Stack deletion handles volumes, return empty to satisfy UI
+          volumesFailed: [],
+          output: stdout
+        });
+
+      } catch (err) {
+        log('info', `⚠️  [DELETE /api/containers/:id] Compose file not found at ${composePath}, falling back to single container deletion`);
+      }
+    }
+
+    // Fallback: Single container deletion (for unmanaged containers)
 
     // Get volume names from mounts
     const volumeNames = info.Mounts
       .filter(mount => mount.Type === 'volume')
       .map(mount => mount.Name);
-    
+
     log('info', `🗑️  [DELETE /api/containers/:id] Found ${volumeNames.length} volumes:`, volumeNames);
 
     // Stop container if running
@@ -691,7 +754,7 @@ app.delete('/api/containers/:id', async (req, res) => {
     // Remove volumes
     const removedVolumes = [];
     const failedVolumes = [];
-    
+
     for (const volumeName of volumeNames) {
       try {
         log('info', `🗑️  [DELETE /api/containers/:id] Removing volume: ${volumeName}`);

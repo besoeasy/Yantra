@@ -52,13 +52,5 @@ To ensure users can configure essential settings like Timezone and Passwords, al
 
 ```yaml
 environment:
-  - TZ=${TZ:-UTC}
-  - WEBPASSWORD=${WEBPASSWORD:-changeme}
+  - VAR1=${VAR1: -Test}
 ```
-
-- **TZ**: Allows the user to set the container's timezone (defaults to UTC).
-- **WEBPASSWORD**: Used for the application's primary admin password or web interface login (defaults to `changeme` or a safe default). **yantra.tags** (Required) - Comma-separated searchable tags
-   - Use lowercase keywords related to functionality
-   - Separate with commas (no spaces after commas)
-   - Include 3-6 relevant tags
-   - Example: `"dns,adblock,privacy,network"`
