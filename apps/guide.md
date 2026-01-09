@@ -1,12 +1,9 @@
-## Genral Rules
+## General Rules
 
-1. Avoid using Rootful Ports (e.g., 80, 443). Use high numbered ports (e.g., 8080, 8443).
-2. Use environment variables for configuration wherever possible.
-3. ENsure no ports conflict between different apps.
-4. Use volumes for persistent data storage. never mount to host paths directly.
-5. Follow best practices for security, such as using non-root users and limiting container capabilities.
-6. If needed we can ask user to input environment vars for example
-      - STORAGE_MAX=${STORAGE_MAX:-200GB}
+1. **Ports**: Avoid rootful ports (80, 443). Use high-numbered ports (8000+). Run `node getusedports.js` to check for conflicts.
+2. **Configuration**: Use environment variables with defaults (e.g., `${VAR_NAME:-default_value}`).
+3. **Storage**: Use named volumes only. Never mount to host paths directly.
+4. **Security**: Follow container best practices - non-root users, limited capabilities.
 
 
 ## Labels
