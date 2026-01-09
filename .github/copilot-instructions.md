@@ -17,15 +17,27 @@ All the apps must follow the rules mentioned in apps/guide.md
 
 After edits make sure to update index.html if we change anything.
 
-If you need something uploaded to IPFS use
+## IPFS Upload
 
-curl -X POST http://localhost:3232/remoteupload \
+To upload images/files to IPFS (for app logos, etc.):
+
+**Endpoint**: `POST https://filedrop.besoeasy.com/remoteupload`
+
+**Example**:
+
+```bash
+curl -X POST https://filedrop.besoeasy.com/remoteupload \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com/image.png"}'
+```
 
-  it returns 
-  {
+**Response**:
+
+```json
+{
   "status": "success",
-  "cid": "QmX...",
-  }
+  "cid": "QmX..."
+}
+```
 
+Use the returned `cid` value for the `yantra.logo` label in compose files.
