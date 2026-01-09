@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     labels:
       - "yantra.name=ZeroNote"
-      - "yantra.logo=https://cdn-icons-png.flaticon.com/512/2965/2965358.png"
+      - "yantra.logo=QmUDcASwnYT4Jj6teUdf2umjPS9npmJkV3HBeWyFntRNsN"
       - "yantra.category=Productivity"
       - "yantra.port=8000"
       - "yantra.description=Offline-first encrypted notes application."

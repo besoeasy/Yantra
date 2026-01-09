@@ -15,9 +15,9 @@ All apps must include the following labels to ensure proper categorization and d
    - Example: `"Pi-hole"`, `"Uptime Kuma"`
 
 2. **yantra.logo** (Required) - App logo URL
-   - Should be a direct image URL (PNG, SVG, or similar)
-   - Prefer IPFS or CDN-hosted images for reliability
-   - Example: `"https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/pi-hole.png"`
+   - Should be IPFS CID
+   - Prefer IPFS for reliability, since URL based images can be changed to host payloads.
+   - Example: `"QmYSoiyanJ26mbB4CVZXGNEk1tfGjNaEnf3hBQyhtgA85w"`
 
 3. **yantra.category** (Required) - App category for organization
    - Valid categories: `"network"`, `"tools"`, `"productivity"`, `"utility"`, `"media"`, `"development"`, `"security"`

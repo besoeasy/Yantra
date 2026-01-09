@@ -4,7 +4,7 @@ services:
     container_name: pihole
     labels:
      yantra.name: "Pi-hole"
-     yantra.logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/pi-hole.png"
+     yantra.logo: "QmWk56fGA1itVTPbNtCQw1kZXScPSKJqQeNf5QfqnSVhsc"
      yantra.category: "network"
      yantra.port: "80"
      yantra.description: "Network-wide ad blocking via DNS sinkhole"

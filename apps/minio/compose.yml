@@ -15,7 +15,7 @@ services:
       - minio_data:/data
     labels:
       yantra.name: "MinIO"
-      yantra.logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/minio.png"
+      yantra.logo: "QmbHbop4JXmJEbg6gSKuRw36UL1mmpo9z832B6KZPtJcxD"
       yantra.category: "utility"
       yantra.port: "9001"
       yantra.description: "High Performance Object Storage compatible with Amazon S3 API"

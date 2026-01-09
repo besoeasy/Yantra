@@ -4,7 +4,7 @@ services:
     container_name: watchtower
     labels:
      yantra.name: "Watchtower"
-     yantra.logo: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/watchtower.png"
+     yantra.logo: "QmfCtZ3ij2PgQxv5pn5ymEFCgQiyiSXfvZnfk4LzCjr4NG"
      yantra.category: "tools"
      yantra.description: "Automatically update running Docker containers"
      yantra.website: "https://containrrr.dev/watchtower"

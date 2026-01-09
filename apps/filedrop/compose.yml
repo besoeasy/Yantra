@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
     labels:
       - "yantra.name=File Drop"
-      - "yantra.logo=https://cdn-icons-png.flaticon.com/512/2965/2965335.png"
+      - "yantra.logo=QmT5eKcAxWshV9jZfhzGK6xd5SipD1jMADe5EeBur8hyA2"
       - "yantra.category=Sharing"
       - "yantra.port=3232"
       - "yantra.description=Decentralized file-sharing solution for Nostr and the web."

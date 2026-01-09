@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     labels:
      yantra.name: "Whoami"
-     yantra.logo: "https://raw.githubusercontent.com/traefik/traefik/master/docs/content/assets/img/traefik.logo.png"
+     yantra.logo: "QmSMrzHU5og4PgNF1hNRSCcjwBX3LjLopL3p3Fxhk1sJSb"
      yantra.category: "utility"
      yantra.port: "${WHOAMI_PORT:-8081}"
      yantra.description: "Tiny HTTP service that prints system information - perfect for testing"

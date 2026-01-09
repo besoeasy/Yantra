@@ -254,7 +254,7 @@ app.get('/api/containers', async (req, res) => {
         // Add computed fields for easier UI access
         app: {
           name: appLabels.name || container.Names[0]?.replace('/', '') || 'unknown',
-          logo: appLabels.logo || null,
+          logo: appLabels.logo ? (appLabels.logo.includes('://') ? appLabels.logo : `https://dweb.link/ipfs/${appLabels.logo}`) : null,
           category: appLabels.category || 'uncategorized',
           port: appLabels.port || null,
           description: appLabels.description || '',
@@ -389,7 +389,7 @@ app.get('/api/apps', async (req, res) => {
           apps.push({
             id: entry.name,
             name: labels.name || entry.name,
-            logo: labels.logo || null,
+            logo: labels.logo ? (labels.logo.includes('://') ? labels.logo : `https://dweb.link/ipfs/${labels.logo}`) : null,
             category: labels.category || 'uncategorized',
             port: labels.port || null,
             description: labels.description || '',
