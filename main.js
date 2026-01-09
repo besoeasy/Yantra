@@ -187,26 +187,17 @@ function parseAppLabels(labels) {
 
 // GET /api/health - Health check endpoint
 app.get('/api/health', async (req, res) => {
-  log('info', '📊 [GET /api/health] Health check requested');
   try {
     await docker.ping();
-    const arch = await getSystemArchitecture();
-    log('info', '✅ [GET /api/health] Docker connected successfully');
-    res.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
+    return res.status(200).json({
+      status: 'ok',
       docker: 'connected',
-      architecture: arch,
-      socketPath,
       version: packageJson.version
     });
   } catch (error) {
-    log('error', '❌ [GET /api/health] Docker connection failed:', error.message);
-    res.status(503).json({
+    return res.status(503).json({
       status: 'unhealthy',
-      timestamp: new Date().toISOString(),
       docker: 'disconnected',
-      socketPath,
       error: error.message,
       version: packageJson.version
     });
@@ -823,7 +814,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = Number.parseInt(process.env.PORT, 10) || 5252;
+const PORT = 5252;
 app.listen(PORT, '0.0.0.0', () => {
   log('info', '\n' + '='.repeat(50));
   log('info', '🚀 Yantra API Server Started');
