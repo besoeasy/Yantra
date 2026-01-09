@@ -11,8 +11,4 @@ Ui is located in /ui/
 
 Apps templates located in /apps/, Apps are docker apps which have templates in /apps/<app-name>/compose.yml
 
-1. Avoid using Rootful Ports (e.g., 80, 443). Use high numbered ports (e.g., 8080, 8443). 
-2. Use environment variables for configuration wherever possible. 
-3. ENsure no ports conflict between different apps. 
-4. Use volumes for persistent data storage. never mount to host paths directly. 
-5. Follow best practices for security, such as using non-root users and limiting container capabilities.
+All the apps must follow the rules mentioned in apps/guide.md
