@@ -12,7 +12,7 @@ services:
       yantra.name: "Dufs"
       yantra.logo: "QmVdbRUyvZpXCsVJAs7fo1PJPXaPHnWRtSCFx6jFTGaG5i"
       yantra.category: "utility,tools"
-      yantra.port: "5000"
+      yantra.port: "5000 (HTTP - Web UI)"
       yantra.description: "Lightweight file server with upload and download capabilities"
       yantra.website: "https://github.com/sigoden/dufs"
 
