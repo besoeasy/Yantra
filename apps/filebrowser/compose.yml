@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
     labels:
       yantra.name: "File Browser"
-      yantra.logo: "QmYVd8qstdXtTd1quwv4nJen6XprykxQRLo67Jy7WyiLMB"
+      yantra.logo: "QmebPcQTwXvzUG4sG2X9mCZ3raT12fKXDovocFYKyTVs9j"
       yantra.category: "tools,utility"
       yantra.port: "8082 (HTTP - Web UI)"
       yantra.description: "Web-based file manager with a user-friendly interface"
