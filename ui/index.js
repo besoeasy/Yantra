@@ -280,7 +280,6 @@ createApp({
                 if (data.success) {
                     alert(`${appId} deployed successfully!`);
                     await this.fetchContainers();
-                    this.activeTab = 'containers';
                 } else {
                     alert(`Deployment failed: ${data.error}`);
                 }
