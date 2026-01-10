@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     labels:
       yantra.name: "AList"
-      yantra.logo: "QmcKZYd7TJwZVQaHwGxN3hHvUxK5VqT8XuQnMFKJYzPqKT"
+      yantra.logo: "QmRbsgnFM5EX4SD9Mv9LsmEWJMkeXH2LoFtH8w6PEFodLP"
       yantra.category: "storage,productivity"
       yantra.port: "5244 (HTTP - Web UI)"
       yantra.description: "A file list program supporting multiple storage providers"
