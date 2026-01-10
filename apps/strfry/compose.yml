@@ -5,6 +5,10 @@ services:
     restart: unless-stopped
     ports:
       - "${STRFRY_PORT:-7777}:7777"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     volumes:
       - strfry_data:/app/strfry-db
     environment:
@@ -12,6 +16,7 @@ services:
       - RELAY_DESCRIPTION=${STRFRY_RELAY_DESCRIPTION:-A Nostr relay powered by strfry}
       - RELAY_PUBKEY=${STRFRY_RELAY_PUBKEY:-}
       - RELAY_CONTACT=${STRFRY_RELAY_CONTACT:-}
+      - DB_PARAMS__MAXMEM=${STRFRY_DB_MAXMEM:-1000000000}
     labels:
       yantra.name: "Strfry"
       yantra.logo: "QmNR4kyKJs3sZwdRJZ47z5feUWn6S8aJw31wzZrXK2fVcD"
