@@ -14,6 +14,7 @@ COPY package*.json ./
 RUN npm install --production
 
 # Copy application files
+COPY check.js ./
 COPY main.js ./
 COPY ui/ ./ui/
 COPY apps/ ./apps/
