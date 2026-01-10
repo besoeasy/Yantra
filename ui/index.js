@@ -24,7 +24,8 @@ createApp({
             showPortModal: false,
             selectedAppForPorts: null,
             notifications: [],
-            notificationIdCounter: 0
+            notificationIdCounter: 0,
+            musthaveapps: ["dufs","watchtower"]
         }
     }, 
     computed: {
