@@ -347,12 +347,23 @@ createApp({
         async confirmDeploy(appId, environment) {
             this.showEnvModal = false;
             this.deploying = appId;
+            
+            // Show deployment started notification
+            this.showNotification(`Deploying ${appId}... This may take a few minutes.`, 'info');
+            
             try {
+                // Create AbortController with 5 minute timeout for deployments
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
+                
                 const response = await fetch(`${this.apiUrl}/api/deploy`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ appId, environment })
+                    body: JSON.stringify({ appId, environment }),
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
                 const data = await response.json();
 
                 if (data.success) {
@@ -362,7 +373,13 @@ createApp({
                     this.showNotification(`Deployment failed: ${data.error}`, 'error');
                 }
             } catch (error) {
-                this.showNotification(`Deployment failed: ${error.message}`, 'error');
+                if (error.name === 'AbortError') {
+                    this.showNotification(`Deployment timeout: ${appId} is taking longer than expected. Check container status.`, 'error');
+                } else if (error.message === 'Failed to fetch') {
+                    this.showNotification(`Network error: Unable to reach server. Deployment may still be in progress.\n\nRefresh to check status.`, 'error');
+                } else {
+                    this.showNotification(`Deployment failed: ${error.message}`, 'error');
+                }
             } finally {
                 this.deploying = null;
                 this.selectedApp = null;
