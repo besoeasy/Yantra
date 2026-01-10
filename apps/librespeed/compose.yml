@@ -11,8 +11,5 @@ services:
      yantra.website: "https://github.com/librespeed/speedtest"
      yantra.github: "https://github.com/librespeed/speedtest"
     ports:
-      - "8098:80"
-    environment:
-      - MODE=standalone
-      - TELEMETRY=false
+      - "8098:8080"
     restart: unless-stopped
