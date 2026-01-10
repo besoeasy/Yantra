@@ -19,15 +19,14 @@ services:
       yantra.website: "https://deluge-torrent.org/"
 
   deluge-http:
-    image: python:3-alpine
+    image: sigoden/dufs:latest
     container_name: deluge-http
     volumes:
-      - deluge-downloads:/downloads:ro
+      - deluge-downloads:/data
     ports:
-      - "8113:8000"
+      - "8113:5000"
     restart: unless-stopped
-    working_dir: /downloads
-    command: python3 -m http.server 8000
+    command: /data --enable-cors --allow-all
 
 volumes:
   deluge-config:
