@@ -48,19 +48,26 @@ All apps must include the following labels to ensure proper categorization and d
    - Support environment variables if port is configurable
    - Example: `"3001"`, `"${WHOAMI_PORT:-8081}"`
 
-5. **yantra.description** (Required) - Brief description of the app
+5. **yantra.protocol** (Optional) - Protocol for accessing the app
+
+   - Defaults to `"http"` if not specified
+   - Can be any protocol: `"https"`, `"ftp"`, `"ssh"`, `"wss"`, etc.
+   - Used when generating URLs for the "Open" button
+   - Example: `"https"`, `"wss"`, `"ftp"`
+
+6. **yantra.description** (Required) - Brief description of the app
 
    - Keep it concise (under 80 characters)
    - Describe the main purpose/functionality
    - Example: `"Network-wide ad blocking via DNS sinkhole"`
 
-6. **yantra.website** (Required) - Official documentation or website URL
+7. **yantra.website** (Required) - Official documentation or website URL
 
    - Link to official docs, wiki, or homepage
    - Prefer documentation over marketing pages
    - Example: `"https://docs.pi-hole.net"`
 
-7. **yantra.github** (Required) - GitHub repository URL
+8. **yantra.github** (Required) - GitHub repository URL
    - Full URL to the main project repository
    - Example: `"https://github.com/pi-hole/pi-hole"`
 

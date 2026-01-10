@@ -143,8 +143,9 @@ createApp({
             
             return shuffled;
         },
-        appUrl(port) {
-            const protocol = window.location.protocol || 'http:';
+        appUrl(port, protocol = 'http') {
+            // Normalize protocol - ensure it doesn't have :// suffix
+            const normalizedProtocol = protocol.replace('://', '').replace(':', '');
             let host = window.location.hostname || 'localhost';
 
             // IPv6 hostnames must be wrapped in brackets when used with an explicit port
@@ -155,10 +156,10 @@ createApp({
             const portString = String(port ?? '').trim();
             const portMatch = portString.match(/\d+/);
             if (!portMatch) {
-                return `${protocol}//${host}`;
+                return `${normalizedProtocol}://${host}`;
             }
 
-            return `${protocol}//${host}:${portMatch[0]}`;
+            return `${normalizedProtocol}://${host}:${portMatch[0]}`;
         },
         async fetchVersion() {
             try {
