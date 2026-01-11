@@ -210,9 +210,19 @@ app.get("/api/containers", async (req, res) => {
     const containers = await docker.listContainers({ all: true });
     // log('info', `📦 [GET /api/containers] Found ${containers.length} containers`);
 
-    const formattedContainers = containers.map((container) => {
+    const formattedContainers = await Promise.all(containers.map(async (container) => {
       const appLabels = parseAppLabels(container.Labels);
       const composeProject = container.Labels["com.docker.compose.project"];
+      
+      // Fetch full container details to get environment variables
+      let envVars = [];
+      try {
+        const containerObj = docker.getContainer(container.Id);
+        const info = await containerObj.inspect();
+        envVars = info.Config.Env || [];
+      } catch (error) {
+        log("error", `Failed to get env for container ${container.Id}:`, error.message);
+      }
 
       return {
         id: container.Id,
@@ -225,6 +235,7 @@ app.get("/api/containers", async (req, res) => {
         ports: container.Ports,
         labels: container.Labels, // Keep original labels for filtering
         appLabels: appLabels,
+        env: envVars,
         // Add computed fields for easier UI access
         app: {
           id: composeProject || container.Names[0]?.replace("/", "") || "unknown", // Add app ID
@@ -237,7 +248,7 @@ app.get("/api/containers", async (req, res) => {
           website: appLabels.website || null,
         },
       };
-    });
+    }));
 
     // Filter out auxiliary containers (sidecars)
     // Identify stacks that have at least one explicit Yantra app

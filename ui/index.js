@@ -60,7 +60,8 @@ createApp({
                 containerId: c.id,
                 ports: c.ports,
                 state: c.state,
-                status: c.status
+                status: c.status,
+                env: c.env
             }));
         },
         uninstalledApps() {
