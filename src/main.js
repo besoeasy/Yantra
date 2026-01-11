@@ -2,8 +2,6 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 
-import { createPinia } from 'pinia'
-
 import App from './App.vue'
 
 import router from './router.js'
@@ -14,8 +12,6 @@ import "vue-toastification/dist/index.css";
 import "./assets/toast.css"; // Custom toast styling
 
 const app = createApp(App)
-
-app.use(createPinia())
 
 app.use(router)
 

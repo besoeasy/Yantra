@@ -1,9 +1,7 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { Box, Boxes, Images, ClipboardList, AlertTriangle, Github } from 'lucide-vue-next'
 
-const router = useRouter()
 const route = useRoute()
 
 const isActive = (name) => route.name === name

@@ -40,19 +40,19 @@ onMounted(async () => {
 <template>
   <div class="p-6 md:p-10 lg:p-12">
     <div class="mb-8">
-      <h2 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Running Containers</h2>
-      <p class="text-gray-600 dark:text-gray-400">Manage your active Docker containers</p>
+      <h2 class="text-4xl font-bold mb-2 text-gray-900">Running Containers</h2>
+      <p class="text-gray-600">Manage your active Docker containers</p>
     </div>
     
     <div v-if="loading" class="text-center py-16">
       <div class="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-      <div class="text-gray-500 dark:text-gray-400 font-medium">Loading containers...</div>
+      <div class="text-gray-500 font-medium">Loading containers...</div>
     </div>
     <div v-else-if="containers.length === 0" class="text-center py-20">
       <div class="text-6xl mb-4">🎯</div>
-      <div class="text-gray-900 dark:text-white font-bold text-2xl mb-2">Welcome to Yantra!</div>
-      <div class="text-gray-600 dark:text-gray-400 font-medium mb-2">No containers running yet</div>
-      <div class="text-sm text-gray-500 dark:text-gray-500 mb-6">Get started by installing apps from the App Store</div>
+      <div class="text-gray-900 font-bold text-2xl mb-2">Welcome to Yantra!</div>
+      <div class="text-gray-600 font-medium mb-2">No containers running yet</div>
+      <div class="text-sm text-gray-500 mb-6">Get started by installing apps from the App Store</div>
       <router-link to="/apps"
         class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95">
         <Store :size="18" />
@@ -63,7 +63,7 @@ onMounted(async () => {
       <div v-for="(container, index) in containers" :key="container.id"
         :style="{ animationDelay: `${index * 50}ms` }"
         @click="viewContainerDetail(container)"
-        class="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-5 transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:scale-[1.02] cursor-pointer animate-fadeIn">
+        class="group bg-white/80/80 backdrop-blur-sm rounded-2xl p-5 transition-all duration-300 hover:bg-white:bg-slate-800 hover:shadow-xl hover:scale-[1.02] cursor-pointer animate-fadeIn">
         
         <!-- Header with Logo and Status -->
         <div class="flex items-start justify-between mb-4">
@@ -74,10 +74,10 @@ onMounted(async () => {
               <span v-else class="text-4xl">🐳</span>
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-gray-900 dark:text-white text-lg truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <h3 class="font-bold text-gray-900 text-lg truncate group-hover:text-blue-600:text-blue-400 transition-colors">
                 {{ container.name }}
               </h3>
-              <div class="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
+              <div class="text-xs text-gray-500 font-mono mt-0.5">
                 {{ container.id.substring(0, 12) }}
               </div>
             </div>
@@ -85,7 +85,7 @@ onMounted(async () => {
           
           <!-- Status Badge -->
           <div class="flex-shrink-0">
-            <div :class="container.state === 'running' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+            <div :class="container.state === 'running' ? 'bg-green-100/30 text-green-700' : 'bg-gray-100 text-gray-600'"
               class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5">
               <span :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
                 class="w-2 h-2 rounded-full animate-pulse"></span>
@@ -97,21 +97,21 @@ onMounted(async () => {
         <!-- Container Info -->
         <div class="space-y-2.5 mb-4">
           <div class="flex items-start gap-2">
-            <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-0.5 flex-shrink-0">Image:</span>
-            <span class="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">{{ container.image }}</span>
+            <span class="text-xs text-gray-500 font-semibold mt-0.5 flex-shrink-0">Image:</span>
+            <span class="text-xs text-gray-700 font-mono break-all">{{ container.image }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Status:</span>
-            <span class="text-xs text-gray-700 dark:text-gray-300">{{ container.status }}</span>
+            <span class="text-xs text-gray-500 font-semibold">Status:</span>
+            <span class="text-xs text-gray-700">{{ container.status }}</span>
           </div>
         </div>
 
         <!-- View Details Footer -->
-        <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
-          <span class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors font-medium">
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+          <span class="text-sm text-gray-500 group-hover:text-blue-600:text-blue-400 transition-colors font-medium">
             View Details
           </span>
-          <ArrowRight :size="16" class="text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+          <ArrowRight :size="16" class="text-gray-400 group-hover:text-blue-600:text-blue-400 group-hover:translate-x-1 transition-all" />
         </div>
       </div>
     </div>

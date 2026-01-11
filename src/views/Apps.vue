@@ -213,7 +213,7 @@ onMounted(async () => {
     <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
       <div v-for="(app, index) in combinedApps" :key="app.id"
         :style="{ animationDelay: `${index * 30}ms` }"
-        class="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 transition-all duration-500 ease-out hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:scale-[1.02] cursor-pointer flex flex-col animate-fadeIn">
+        class="group bg-white/80/80 backdrop-blur-sm rounded-3xl p-6 transition-all duration-500 ease-out hover:bg-white:bg-slate-800 hover:shadow-xl hover:scale-[1.02] cursor-pointer flex flex-col animate-fadeIn">
         
         <!-- App Logo & Name Section -->
         <div class="flex items-center gap-4 mb-4">
@@ -228,12 +228,12 @@ onMounted(async () => {
           </div>
           
           <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-lg text-gray-900 dark:text-white truncate mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3 class="font-bold text-lg text-gray-900 truncate mb-1 group-hover:text-blue-600:text-blue-400 transition-colors">
               {{ app.name }}
             </h3>
             <div class="flex flex-wrap gap-1">
               <span v-for="(cat, idx) in app.category.split(',').slice(0, 2)" :key="cat"
-                class="text-xs px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">
+                class="text-xs px-2 py-0.5 rounded-md bg-blue-50/30 text-blue-700 font-medium">
                 {{ cat.trim() }}
               </span>
             </div>
@@ -241,14 +241,14 @@ onMounted(async () => {
         </div>
 
         <!-- Description -->
-        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4 line-clamp-2 flex-1">
+        <p class="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-2 flex-1">
           {{ app.description || 'No description available' }}
         </p>
 
         <!-- Actions -->
         <div class="flex items-center gap-2">
           <button @click="deployApp(app.id)" :disabled="deploying === app.id"
-            :class="deploying === app.id ? 'bg-gray-400 dark:bg-gray-600' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'"
+            :class="deploying === app.id ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'"
             class="flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow-md disabled:cursor-not-allowed">
             <span v-if="deploying === app.id" class="inline-flex items-center gap-2">
               <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -258,14 +258,14 @@ onMounted(async () => {
           </button>
           
           <a v-if="app.website" :href="app.website" target="_blank"
-            class="p-2.5 rounded-xl bg-gray-100 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-all duration-200 hover:scale-110 active:scale-95"
+            class="p-2.5 rounded-xl bg-gray-100 hover:bg-blue-100:bg-slate-600 text-gray-600 hover:text-blue-600:text-blue-400 transition-all duration-200 hover:scale-110 active:scale-95"
             title="Visit Website">
             <Globe :size="18" />
           </a>
           
           <a :href="`https://github.com/besoeasy/yantra/blob/main/apps/${app.id}/compose.yml`"
             target="_blank"
-            class="p-2.5 rounded-xl bg-gray-100 hover:bg-purple-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-all duration-200 hover:scale-110 active:scale-95"
+            class="p-2.5 rounded-xl bg-gray-100 hover:bg-purple-100:bg-slate-600 text-gray-600 hover:text-purple-600:text-purple-400 transition-all duration-200 hover:scale-110 active:scale-95"
             title="View Source">
             <FileCode :size="18" />
           </a>
