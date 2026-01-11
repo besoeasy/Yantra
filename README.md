@@ -20,7 +20,7 @@ We created Yantra as a **faster, lighter, and more transparent** alternative to 
 
 - 🚀 One-click app deployment
 - 📦 Container management with volume cleanup
-- 🎨 Clean, dark-mode Vue.js interface
+- 🎨 Clean Vue.js interface
 - 🏪 Built-in app store with 6+ popular self-hosted apps
 - � Docker-based (reliable, boot-persistent)
 - 💾 Minimal resource usage (~70MB RAM)
