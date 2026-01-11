@@ -3,6 +3,8 @@
 1. Always tailwindCSS and avoid custom CSS unless absolutely necessary.
 2. Use lot of animations and transitions to make the UI feel smooth.
 3. Use Lucide icons (lucide-vue-next) for all icons.
+4. Design shgould be minimalistic and easy to use.
+5. All components and pages should be responsive and work well on mobile devices.
 
 # Apps
 
