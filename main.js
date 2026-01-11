@@ -293,6 +293,39 @@ app.get("/api/containers/:id", async (req, res) => {
     const info = await container.inspect();
     // log('info', `✅ [GET /api/containers/:id] Found container: ${info.Name}`);
     const appLabels = parseAppLabels(info.Config.Labels);
+    const composeProject = info.Config.Labels["com.docker.compose.project"];
+
+    // If part of a compose project, get ports from all containers in the stack
+    let allPorts = info.NetworkSettings.Ports;
+    if (composeProject) {
+      try {
+        const allContainers = await docker.listContainers({ all: false });
+        const projectContainers = allContainers.filter(c => 
+          c.Labels["com.docker.compose.project"] === composeProject
+        );
+        
+        // Aggregate all ports from the stack
+        const portMap = {};
+        for (const pc of projectContainers) {
+          if (pc.Ports) {
+            pc.Ports.forEach(port => {
+              if (port.PublicPort && port.PrivatePort) {
+                const key = `${port.PrivatePort}/${port.Type}`;
+                if (!portMap[key]) {
+                  portMap[key] = [{
+                    HostIp: port.IP || "0.0.0.0",
+                    HostPort: String(port.PublicPort)
+                  }];
+                }
+              }
+            });
+          }
+        }
+        allPorts = portMap;
+      } catch (err) {
+        log("error", "Failed to aggregate stack ports:", err.message);
+      }
+    }
 
     res.json({
       success: true,
@@ -302,7 +335,7 @@ app.get("/api/containers/:id", async (req, res) => {
         image: info.Config.Image,
         state: info.State,
         created: info.Created,
-        ports: info.NetworkSettings.Ports,
+        ports: allPorts,
         mounts: info.Mounts,
         env: info.Config.Env,
         labels: appLabels,

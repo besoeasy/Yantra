@@ -535,10 +535,24 @@ createApp({
         },
         // Container detail methods
         async viewContainerDetail(container) {
-            this.selectedContainer = container;
             this.containerDetailView = true;
             this.containerStats = null;
             this.containerLogs = [];
+            
+            // Fetch full container details from API to get proper port format
+            try {
+                const response = await fetch(`${this.apiUrl}/api/containers/${container.id}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.selectedContainer = data.container;
+                } else {
+                    this.selectedContainer = container;
+                }
+            } catch (error) {
+                console.error('Failed to fetch container details:', error);
+                this.selectedContainer = container;
+            }
             
             // Fetch initial stats and logs
             await Promise.all([
@@ -617,7 +631,7 @@ createApp({
         },
         getLabeledPorts() {
             // Get actual running container ports and match them with yantra.port descriptions
-            if (!this.selectedContainer || !this.selectedContainer.ports || this.selectedContainer.ports.length === 0) {
+            if (!this.selectedContainer || !this.selectedContainer.ports) {
                 return [];
             }
             
@@ -627,7 +641,7 @@ createApp({
             // Parse yantra.port label to build a map of descriptions
             if (this.selectedContainer.app && this.selectedContainer.app.port) {
                 const portStr = this.selectedContainer.app.port;
-                // Parse format: "9091 (HTTP - Web Interface), 9092 (HTTP - Downloads)"
+                // Parse format: "9091 (HTTP - Web Interface), 5000 (HTTP - Downloads)"
                 const regex = /(\d+)\s*\(([^-\)]+)\s*-\s*([^)]+)\)/g;
                 let match;
                 
@@ -639,28 +653,39 @@ createApp({
                 }
             }
             
-            // Build list from actual container ports (only TCP ports with public access)
-            this.selectedContainer.ports.forEach(port => {
-                if (port.PublicPort && port.Type === 'tcp') {
-                    // Check if we have a description for this port or any port
-                    const description = portDescriptions[port.PublicPort] || portDescriptions[port.PrivatePort];
+            // Build list from actual container ports (Docker inspect format: {"9091/tcp": [{HostPort: "12345"}]})
+            const portKeys = Object.keys(this.selectedContainer.ports);
+            
+            portKeys.forEach(key => {
+                const [privatePort, type] = key.split('/');
+                const bindings = this.selectedContainer.ports[key];
+                
+                // Only process TCP ports with public bindings
+                if (type === 'tcp' && bindings && bindings.length > 0) {
+                    const hostPort = bindings[0].HostPort;
                     
-                    if (description) {
-                        ports.push({
-                            port: port.PublicPort,
-                            protocol: description.protocol,
-                            label: description.label
-                        });
-                    } else if (Object.keys(portDescriptions).length > 0) {
-                        // If we have port descriptions but none match, use first available description
-                        // This handles cases where label port differs from actual port
-                        const firstDesc = Object.values(portDescriptions)[ports.length];
-                        if (firstDesc) {
+                    if (hostPort) {
+                        // Check if we have a description for the private port (the one in yantra.port)
+                        const description = portDescriptions[privatePort];
+                        
+                        if (description) {
                             ports.push({
-                                port: port.PublicPort,
-                                protocol: firstDesc.protocol,
-                                label: firstDesc.label
+                                port: hostPort,
+                                protocol: description.protocol,
+                                label: description.label
                             });
+                        } else if (Object.keys(portDescriptions).length > 0) {
+                            // If we have port descriptions but none match, use position-based matching
+                            const portDescArray = Object.entries(portDescriptions);
+                            const matchIndex = ports.length;
+                            if (matchIndex < portDescArray.length) {
+                                const [, desc] = portDescArray[matchIndex];
+                                ports.push({
+                                    port: hostPort,
+                                    protocol: desc.protocol,
+                                    label: desc.label
+                                });
+                            }
                         }
                     }
                 }
