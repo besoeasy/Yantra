@@ -1,0 +1,20 @@
+services:
+  cloud-torrent:
+    image: jpillora/cloud-torrent:latest
+    container_name: cloud-torrent
+    volumes:
+      - cloud-torrent-downloads:/downloads
+    ports:
+      - "3003:3000"
+    restart: unless-stopped
+    labels:
+      yantra.name: "Cloud Torrent"
+      yantra.logo: "QmXSGiWw4pJ8H3ijuA1a9YfpdZth35iu2hT3PaJAArUkqW"
+      yantra.category: "download,utility"
+      yantra.port: "3003 (HTTP - Web UI)"
+      yantra.description: "Cloud-based BitTorrent client with streaming support"
+      yantra.website: "https://github.com/jpillora/cloud-torrent"
+
+volumes:
+  cloud-torrent-downloads:
+    name: cloud-torrent-downloads
