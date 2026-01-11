@@ -39,57 +39,79 @@ onMounted(async () => {
 
 <template>
   <div class="p-6 md:p-10 lg:p-12">
-    <h2 class="text-5xl font-bold mb-12 text-gray-900 tracking-tight">Containers</h2>
-    <p class="text-gray-600 mb-8 -mt-8">All running Docker containers</p>
+    <div class="mb-8">
+      <h2 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white">Running Containers</h2>
+      <p class="text-gray-600 dark:text-gray-400">Manage your active Docker containers</p>
+    </div>
     
     <div v-if="loading" class="text-center py-16">
-      <div class="text-gray-500 font-medium">Loading containers...</div>
+      <div class="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+      <div class="text-gray-500 dark:text-gray-400 font-medium">Loading containers...</div>
     </div>
-    <div v-else-if="containers.length === 0" class="text-center py-16">
-      <div class="text-5xl mb-4">🎯</div>
-      <div class="text-gray-900 font-bold text-2xl mb-2">Welcome to Yantra!</div>
-      <div class="text-gray-500 font-medium mb-4">No containers running yet</div>
-      <div class="text-sm text-gray-400 mb-6">Get started by installing apps from the App Store</div>
+    <div v-else-if="containers.length === 0" class="text-center py-20">
+      <div class="text-6xl mb-4">🎯</div>
+      <div class="text-gray-900 dark:text-white font-bold text-2xl mb-2">Welcome to Yantra!</div>
+      <div class="text-gray-600 dark:text-gray-400 font-medium mb-2">No containers running yet</div>
+      <div class="text-sm text-gray-500 dark:text-gray-500 mb-6">Get started by installing apps from the App Store</div>
       <router-link to="/apps"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition-all">
+        class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95">
         <Store :size="18" />
         <span>Browse App Store</span>
       </router-link>
     </div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="container in containers" :key="container.id"
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div v-for="(container, index) in containers" :key="container.id"
+        :style="{ animationDelay: `${index * 50}ms` }"
         @click="viewContainerDetail(container)"
-        class="bg-white rounded-2xl p-6 border border-gray-200 hover:border-purple-300 transition-all duration-300 hover:shadow-xl cursor-pointer">
+        class="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-5 transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:scale-[1.02] cursor-pointer animate-fadeIn">
+        
+        <!-- Header with Logo and Status -->
         <div class="flex items-start justify-between mb-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-2">
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="relative flex-shrink-0">
               <img v-if="container.app.logo" :src="container.app.logo" :alt="container.name"
-                class="w-12 h-12 rounded-lg object-cover">
-              <span v-else class="text-3xl">🐳</span>
-              <div>
-                <h3 class="font-bold text-gray-900 text-lg">{{ container.name }}</h3>
-                <div class="text-xs text-gray-500 font-mono mt-1">{{ container.id.substring(0, 12) }}</div>
+                class="w-14 h-14 object-contain transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <span v-else class="text-4xl">🐳</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-gray-900 dark:text-white text-lg truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {{ container.name }}
+              </h3>
+              <div class="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
+                {{ container.id.substring(0, 12) }}
               </div>
             </div>
           </div>
-          <div :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
-            class="w-3 h-3 rounded-full"></div>
+          
+          <!-- Status Badge -->
+          <div class="flex-shrink-0">
+            <div :class="container.state === 'running' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <span :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
+                class="w-2 h-2 rounded-full animate-pulse"></span>
+              {{ container.state }}
+            </div>
+          </div>
         </div>
         
-        <div class="space-y-2 mb-4">
-          <div class="flex items-center gap-2 text-sm">
-            <span class="text-gray-500 font-semibold">Image:</span>
-            <span class="text-gray-700 font-mono text-xs truncate">{{ container.image }}</span>
+        <!-- Container Info -->
+        <div class="space-y-2.5 mb-4">
+          <div class="flex items-start gap-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-0.5 flex-shrink-0">Image:</span>
+            <span class="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">{{ container.image }}</span>
           </div>
-          <div class="flex items-center gap-2 text-sm">
-            <span class="text-gray-500 font-semibold">Status:</span>
-            <span class="text-gray-700">{{ container.status }}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Status:</span>
+            <span class="text-xs text-gray-700 dark:text-gray-300">{{ container.status }}</span>
           </div>
         </div>
 
-        <div class="text-sm text-gray-500 flex items-center gap-2">
-          <ArrowRight :size="16" />
-          <span>Click to view details</span>
+        <!-- View Details Footer -->
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
+          <span class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors font-medium">
+            View Details
+          </span>
+          <ArrowRight :size="16" class="text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
         </div>
       </div>
     </div>
