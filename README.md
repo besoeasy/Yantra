@@ -63,7 +63,8 @@ sudo systemctl status docker
 # Pull and run the pre-built image
 docker run -d \
   --name yantra \
-  -p 5252:5252 \
+  -p 80:5252 \
+  -p 443:5252 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --restart unless-stopped \
   ghcr.io/besoeasy/yantra:main
