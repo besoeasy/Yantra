@@ -1,6 +1,6 @@
 # Yantra 🔧
 
-A lightweight, minimal, and open-source alternative to Umbrel for self-hosting enthusiasts.
+A lightweight Docker App Store that runs alongside your system - not as a full operating system replacement.
 
 ## Screenshots
 
@@ -8,13 +8,71 @@ A lightweight, minimal, and open-source alternative to Umbrel for self-hosting e
 
 ## Why Yantra?
 
-We created Yantra as a **faster, lighter, and more transparent** alternative to Umbrel. Umbrel's heavy apps, forced proxy architecture, and slow update cycles made self-hosting unnecessarily painful. Yantra takes a different approach:
+**Yantra is fundamentally different from UmbrelOS, CasaOS, NirvatiOS, and Start9.**
 
-- **Direct access** - No forced reverse proxies slowing down your apps
-- **Minimal footprint** - ~70MB RAM vs 500MB+ for alternatives
-- **Fast deployments** - Deploy apps in seconds, not minutes
-- **Open & transparent** - Simple codebase anyone can understand and modify
-- **Docker-native** - Works with standard Docker Engine for reliable container management
+These platforms force you to run a complete operating system just to get an app store. When you install Umbrel on your Raspberry Pi, you're wasting its potential - your powerful computer becomes locked into their system, running outdated apps with no customization.
+
+### Yantra's Philosophy: Your System, Your Rules
+
+**Yantra is a Docker App Store, not an operating system.** It runs alongside your existing system without taking over.
+
+**Key Advantages:**
+
+- **🖥️ Your system stays yours** - Keep using your Raspberry Pi, server, or computer however you want
+- **🔒 Complete isolation** - Apps never touch your system files, everything stays in Docker containers
+- **⚡ No bloat** - ~70MB RAM vs 500MB+ for full OS alternatives
+- **🎛️ Full customization** - Edit environment variables, ports, and volumes directly (unlike Umbrel)
+- **🚀 Up-to-date apps** - No waiting for slow platform updates to get the latest versions
+- **🔧 Simple & transparent** - Minimal codebase anyone can understand and modify
+- **📍 Direct access** - No forced reverse proxies slowing down your services
+
+### The Problem with Full OS Platforms
+
+When you install UmbrelOS, CasaOS, or similar platforms:
+- ❌ Your entire system becomes dedicated to their platform
+- ❌ You're stuck with their app versions and update schedule
+- ❌ Can't customize environment variables or configurations
+- ❌ Apps are outdated by months
+- ❌ Heavy resource usage even when idle
+- ❌ Limited flexibility and control
+
+### With Yantra
+
+- ✅ Install apps in seconds while keeping your system free
+- ✅ Run Yantra alongside your projects, dev environment, or daily tasks
+- ✅ Get the app store benefits without sacrificing your computer
+- ✅ Full Docker compatibility - use standard tools and commands
+- ✅ Customize everything - all compose files are accessible and editable
+
+## Perfect for Your Work PC
+
+**We recommend installing Yantra on your work computer or laptop.** Install apps only when you need them, use them, then remove them - keeping your system clean and focused.
+
+### Real-World Examples
+
+**1. Download videos from YouTube or Facebook?**  
+Install [MeTube](apps/metube), download your video, remove it.
+
+**2. Need to edit PDF files?**  
+Install [Stirling PDF](apps/stirling-pdf), edit your documents, remove it.
+
+**3. Convert images (PNG to JPG, etc.)?**  
+Install [ConvertX](apps/convertx), convert your files, remove it.
+
+**4. Need to download torrents?**  
+Install [Transmission](apps/transmission), download your files, remove it.
+
+**5. Quickly share files with colleagues?**  
+Install [SAMBA](apps/samba) or [Dufs](apps/dufs), share files, remove it.
+
+**6. Browse privately with TOR?**  
+Install [TOR Browser](apps/), use it, remove it when done.
+
+**7. Need a tracking-free search engine?**  
+Install [SearXNG](apps/searxng), search privately, remove it.
+
+**Why this works:**  
+Apps run in complete isolation - no leftovers, no system clutter, no permanent installations. Your work PC stays clean and you get powerful tools exactly when needed.
 
 ## Features
 
