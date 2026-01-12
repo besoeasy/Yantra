@@ -1209,7 +1209,7 @@ app.listen(PORT, "0.0.0.0", () => {
   log("info", `🌐 Access: http://localhost:${PORT}`);
   log("info", "=".repeat(50) + "\n");
   
-  // Start cleanup scheduler (runs every 60 minutes by default)
+  // Start cleanup scheduler (runs every 15 minutes to handle temporary installations)
   log("info", "🧹 Starting automatic cleanup scheduler");
-  startCleanupScheduler(60);
+  startCleanupScheduler(15);
 });
