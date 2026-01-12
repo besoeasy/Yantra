@@ -33,7 +33,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm install --production
+RUN npm install --production --no-optional && npm cache clean --force
 
 # Copy built Vue.js dist folder from builder
 COPY --from=builder /app/dist ./dist
