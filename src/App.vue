@@ -59,7 +59,7 @@ const isActive = (name) => route.name === name
       <div class="flex flex-col items-center gap-3 mt-4">
         <!-- Donate -->
         <a 
-          href="https://dweb.link/ipns/donate.besoeasy.com/" 
+          href="https://sponsor.besoeasy.com/" 
           target="_blank"
           class="w-12 h-12 rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 transition-all"
           title="Support this project">
