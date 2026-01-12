@@ -92,7 +92,7 @@ docker run -d \
   -p 443:5252 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --restart unless-stopped \
-  ghcr.io/besoeasy/yantra:main
+  ghcr.io/besoeasy/yantra
 ```
 ### 🔒 Recommended: Tailscale Integration
 
