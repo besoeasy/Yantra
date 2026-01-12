@@ -7,7 +7,6 @@ A lightweight Docker App Store that runs alongside your system - not as a full o
 <img width="2996" height="2104" src="https://github.com/user-attachments/assets/f0eba908-7da0-4e12-8c03-ed7f3a088e9b" />
 <img width="3072" height="2104" src="https://github.com/user-attachments/assets/8da85686-8018-4131-b063-69507111b531" />
 
-
 ## Why Yantra?
 
 **Yantra is fundamentally different from UmbrelOS, CasaOS, NirvatiOS, and Start9.**
