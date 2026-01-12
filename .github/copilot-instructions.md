@@ -36,12 +36,11 @@
    - Run `node check.js` before making changes to detect potential conflicts
 
 2. **Configuration Management**
-   - Use environment variables with default values: `${VAR_NAME:-default_value}`
+   - Use environment variables with customisable values: `${VAR_NAME:-default_value}`
    - **Exception**: Do NOT use environment variables for port mappings
    - Port mappings must be explicit and hardcoded
    - **Port Format**: Use short format `"PORT"` instead of `"PORT:PORT"` for non-essential ports
      - Example: `"25441"` instead of `"25441:25441"`
-     - Docker will automatically map to the same port on the host
 
 3. **Storage Guidelines**
    - Use named Docker volumes exclusively
@@ -89,12 +88,10 @@ All Docker Compose apps must include these labels for proper UI integration:
   - `"productivity,security,utility"`
 
 ### 4. yantra.port (Optional - Required for Web UIs)
-- **Purpose**: Defines primary access port(s) for the app
+- **Purpose**: Defines primary port(s) for the app
 - **When to Include**: Required if the app has a web interface
 - **Format Options**:
-  - Single port: `"8080"`
-  - Multiple ports with labels: `"8093 (HTTPS - Web UI), 8094 (HTTPS - Admin)"`
-- **UI Behavior**: When multiple ports are specified, the UI displays a selection popup
+  - Ports with labels: `"8093 (HTTPS - Web UI), 8094 (HTTPS - Admin)"`
 
 ### 5. yantra.description (Required)
 - **Purpose**: Brief explanation of app functionality
@@ -105,11 +102,8 @@ All Docker Compose apps must include these labels for proper UI integration:
 ### 6. yantra.website (Required)
 - **Purpose**: Link to official resources
 - **Preference Order**:
-  1. Official documentation
-  2. Wiki pages
-  3. Project homepage
-- **Avoid**: Marketing-focused landing pages when docs are available
-- **Example**: `"https://docs.pi-hole.net"`
+  1. Github repository
+  2. Project homepage
 
 ---
 
