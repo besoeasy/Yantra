@@ -1,6 +1,9 @@
 # Yantra 🔧
 
-A lightweight Docker App Store that runs alongside your system - not as a full operating system replacement.
+YANTRA is a cross-platform Docker App Store that makes server-grade self-hosting easy and flexible.
+It gives you ready-to-run apps — from Bitcoin nodes to file converters and privacy tools — all in lightweight Docker containers.
+
+Yantra runs alongside your existing system, not as a full operating system replacement, so you keep full control of your machine while enjoying a powerful app ecosystem.
 
 ## Screenshots
 
@@ -9,13 +12,11 @@ A lightweight Docker App Store that runs alongside your system - not as a full o
 
 ## Why Yantra?
 
-**Yantra is fundamentally different from UmbrelOS, CasaOS, NirvatiOS, and Start9.**
-
 These platforms force you to run a complete operating system just to get an app store. When you install Umbrel on your Raspberry Pi, you're wasting its potential - your powerful computer becomes locked into their system, running outdated apps with no customization.
 
 ### Yantra's Philosophy: Your System, Your Rules
 
-**Yantra is a Docker App Store, not an operating system.** It runs alongside your existing system without taking over.
+**Yantra is a App Store, not an operating system.** It runs alongside your existing system without taking over.
 
 **Key Advantages:**
 
