@@ -214,12 +214,47 @@ app.get("/api/updates/pending", async (req, res) => {
       filters: { reference: ['ghcr.io/besoeasy/yantra'] }
     });
 
-    const hasPendingUpdate = images.length > 1;
+    if (images.length < 2) {
+      return res.json({
+        success: true,
+        hasPendingUpdate: false,
+        imageCount: images.length,
+        message: 'You are running the latest version'
+      });
+    }
+
+    // Sort images by creation date (newest first)
+    images.sort((a, b) => b.Created - a.Created);
+    const newestImageId = images[0].Id;
+
+    // Get the running yantra container
+    const containers = await docker.listContainers({ 
+      all: false,
+      filters: { name: ['yantra'] }
+    });
+
+    if (containers.length === 0) {
+      // No running yantra container found
+      return res.json({
+        success: true,
+        hasPendingUpdate: false,
+        imageCount: images.length,
+        message: 'Yantra container not found'
+      });
+    }
+
+    const yantraContainer = containers[0];
+    const currentImageId = yantraContainer.ImageID;
+
+    // Check if container is using the newest image
+    const hasPendingUpdate = currentImageId !== newestImageId;
 
     res.json({
       success: true,
       hasPendingUpdate,
       imageCount: images.length,
+      currentImage: currentImageId.substring(0, 12),
+      newestImage: newestImageId.substring(0, 12),
       message: hasPendingUpdate 
         ? 'A new Yantra update is ready. Please reboot your device to apply it, or install the Watchtower app for automatic updates.'
         : 'You are running the latest version'
