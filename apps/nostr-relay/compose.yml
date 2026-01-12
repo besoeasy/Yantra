@@ -19,9 +19,14 @@ services:
     ports:
       - "8080"
       - "9090"
-    volumes:
-      - ./config.yaml:/app/config.yaml:ro
-    command: /usr/local/bin/relay start --config /app/config.yaml
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+      - METRICS_PORT=${METRICS_PORT:-8181}
+      - RELAY_NAME=${RELAY_NAME:-shugur-relay}
+      - DB_HOST=cockroachdb
+      - DB_PORT=26257
+    command: /usr/local/bin/relay start --db-host cockroachdb --db-port 26257
     depends_on:
       cockroachdb:
         condition: service_healthy
