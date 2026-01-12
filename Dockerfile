@@ -10,12 +10,8 @@ COPY package*.json ./
 # Install ALL dependencies (including devDependencies for building)
 RUN npm install
 
-# Copy source files for Vue.js build
-COPY index.html ./
-COPY jsconfig.json ./
-COPY vite.config.js ./
-COPY src/ ./src/
-COPY apps/ ./apps/
+# Copy everything for build
+COPY . .
 
 # Build Vue.js application
 RUN npm run build
