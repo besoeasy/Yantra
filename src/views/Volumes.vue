@@ -8,6 +8,7 @@ const toast = useToast()
 const volumes = ref([])
 const loading = ref(false)
 const actionLoading = ref({})
+const volumePorts = ref({})
 
 async function fetchVolumes() {
   loading.value = true
@@ -16,6 +17,23 @@ async function fetchVolumes() {
     const data = await response.json()
     if (data.success) {
       volumes.value = data.volumes.sort((a, b) => a.name.localeCompare(b.name))
+      
+      // Fetch ports for browsing volumes
+      const containers = await fetch('/api/containers')
+      const containersData = await containers.json()
+      if (containersData.success) {
+        const newPorts = {}
+        containersData.containers.forEach(container => {
+          if (container.labels && container.labels['yantra.volume-browser']) {
+            const volumeName = container.labels['yantra.volume-browser']
+            const port = container.ports?.find(p => p.privatePort === 5000)?.publicPort
+            if (port) {
+              newPorts[volumeName] = port
+            }
+          }
+        })
+        volumePorts.value = newPorts
+      }
     }
   } catch (error) {
     toast.error('Failed to fetch volumes')
@@ -34,6 +52,12 @@ async function startBrowsing(volumeName) {
     const data = await response.json()
     if (data.success) {
       toast.success(`Volume browser started on port ${data.port}`)
+      
+      // Store the port immediately
+      if (data.port) {
+        volumePorts.value[volumeName] = data.port
+      }
+      
       await fetchVolumes()
       
       // Open browser in new tab
@@ -59,6 +83,10 @@ async function stopBrowsing(volumeName) {
     const data = await response.json()
     if (data.success) {
       toast.success('Volume browser stopped')
+      
+      // Remove the port from storage
+      delete volumePorts.value[volumeName]
+      
       await fetchVolumes()
     }
   } catch (error) {
@@ -162,9 +190,8 @@ onUnmounted(() => {
           </div>
 
           <!-- Actions -->
-          <div class="flex gap-2">
+          <div v-if="!volume.isBrowsing" class="flex gap-2">
             <button
-              v-if="!volume.isBrowsing"
               @click="startBrowsing(volume.name)"
               :disabled="actionLoading[volume.name]"
               class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -173,15 +200,25 @@ onUnmounted(() => {
               <Eye v-else class="w-4 h-4" />
               Browse
             </button>
+          </div>
+          <div v-else class="flex flex-col gap-2">
+            <a
+              v-if="volumePorts[volume.name]"
+              :href="`http://localhost:${volumePorts[volume.name]}`"
+              target="_blank"
+              class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200"
+            >
+              <ExternalLink class="w-4 h-4" />
+              Open :{{ volumePorts[volume.name] }}
+            </a>
             <button
-              v-else
               @click="stopBrowsing(volume.name)"
               :disabled="actionLoading[volume.name]"
-              class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Loader2 v-if="actionLoading[volume.name]" class="w-4 h-4 animate-spin" />
               <EyeOff v-else class="w-4 h-4" />
-              Stop
+              Stop Browser
             </button>
           </div>
         </div>
