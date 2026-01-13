@@ -11,6 +11,4 @@ services:
       yantra.website: "https://networking-toolbox.as93.net"
     ports:
       - "3000"
-    environment:
-      - TZ=${TZ:-UTC}
     restart: unless-stopped

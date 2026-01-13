@@ -3,8 +3,6 @@ services:
     image: ghcr.io/alexta69/metube:latest
     container_name: metube
     hostname: metube
-    environment:
-      - TZ=${TZ:-UTC}
     volumes:
       - metube_downloads:/downloads
     ports:

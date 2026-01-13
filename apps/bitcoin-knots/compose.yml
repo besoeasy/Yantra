@@ -4,7 +4,6 @@ services:
     container_name: bitcoin-knots
     hostname: bitcoin-knots
     environment:
-      - TZ=${TZ:-UTC}
       - BITCOIN_NETWORK=${BITCOIN_NETWORK:-mainnet}
     volumes:
       - bitcoin_knots_data:/data

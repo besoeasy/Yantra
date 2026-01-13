@@ -3,8 +3,6 @@ services:
     image: bentopdf/bentopdf:latest
     container_name: bentopdf
     hostname: bentopdf
-    environment:
-      - TZ=${TZ:-UTC}
     ports:
       - "8080"
     restart: unless-stopped
