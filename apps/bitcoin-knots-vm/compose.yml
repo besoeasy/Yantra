@@ -1,0 +1,25 @@
+services:
+  bitcoin-knots-vm:
+    image: lscr.io/linuxserver/bitcoin-knots:latest
+    container_name: bitcoin-knots-vm
+    hostname: bitcoin-knots-vm
+    environment:
+      - BITCOIN_RPC_USER=${BITCOIN_RPC_USER:-bitcoin}
+      - BITCOIN_RPC_PASSWORD=${BITCOIN_RPC_PASSWORD:-changeme}
+    volumes:
+      - bitcoin_knots_config:/config
+    ports:
+      - "3000"
+      - "3001"
+      - "8333"
+    restart: unless-stopped
+    labels:
+      yantra.name: "Bitcoin Knots VM"
+      yantra.logo: "QmTttEiisTnt6ivcGQo9W6BCKNpuViU9zAhNYLKd8xK9Lm"
+      yantra.category: "utility,development"
+      yantra.port: "3000 (HTTP - Web UI), 3001 (HTTPS - Web UI)"
+      yantra.description: "Bitcoin full node with enhanced features and privacy focus."
+      yantra.website: "https://bitcoinknots.org"
+
+volumes:
+  bitcoin_knots_vm_config:
