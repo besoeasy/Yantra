@@ -23,6 +23,8 @@ Follow the structure and naming conventions outlined in `apps/apps.md` for all a
 
 ## API Development Standards
 
+API is located in the `/api/` directory. Follow these guidelines when creating or modifying API endpoints.
+
 #### Atomicity Requirement (MOST IMPORTANT)
 
 **All Docker API actions MUST be atomic** - they must either:
@@ -37,5 +39,4 @@ Follow the structure and naming conventions outlined in `apps/apps.md` for all a
 After making any changes to the codebase:
 
 - ✅ Run `node /api/check.js` to verify no conflicts were introduced
-- ✅ Test responsive behavior on mobile devices
 - ✅ Verify all required labels are present for new apps

@@ -7,17 +7,6 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-function extractDefaultPortFromEnvExpression(value) {
-    if (typeof value !== 'string') return null;
-    const trimmed = value.trim();
-    if (/^\d+$/.test(trimmed)) return Number(trimmed);
-
-    const envDefaultMatch = trimmed.match(/\$\{[^:}]+:-([0-9]+)\}/);
-    if (envDefaultMatch) return Number(envDefaultMatch[1]);
-
-    return null;
-}
-
 function expandPortRange(value) {
     if (typeof value !== 'string') return null;
     const trimmed = value.trim();
@@ -72,7 +61,7 @@ function extractPublishedPortsFromComposeObject(composeObj) {
                 if (parts.length === 3) hostPart = parts[1];
                 if (!hostPart) continue;
 
-                const maybePorts = expandPortRange(hostPart) || (extractDefaultPortFromEnvExpression(hostPart) !== null ? [extractDefaultPortFromEnvExpression(hostPart)] : null);
+                const maybePorts = expandPortRange(hostPart);
                 if (maybePorts) {
                     for (const p of maybePorts) publishedPorts.add(p);
                 }
@@ -82,7 +71,7 @@ function extractPublishedPortsFromComposeObject(composeObj) {
                 if (typeof published === 'number' && Number.isFinite(published)) {
                     publishedPorts.add(published);
                 } else if (typeof published === 'string') {
-                    const maybePorts = expandPortRange(published) || (extractDefaultPortFromEnvExpression(published) !== null ? [extractDefaultPortFromEnvExpression(published)] : null);
+                    const maybePorts = expandPortRange(published);
                     if (maybePorts) {
                         for (const p of maybePorts) publishedPorts.add(p);
                     }
@@ -100,13 +89,23 @@ function extractPublishedPortsFromComposeObject(composeObj) {
                 const key = label.slice(0, idx).trim();
                 const value = label.slice(idx + 1).trim();
                 if (key === 'yantra.port') {
-                    validateYantraPortFormat(value, serviceName);
+                    try {
+                        validateYantraPortFormat(value, serviceName);
+                    } catch (error) {
+                        // Re-throw to stop processing - port format is critical
+                        throw error;
+                    }
                 }
             }
         } else if (labels && typeof labels === 'object') {
             const value = labels['yantra.port'];
             if (value) {
-                validateYantraPortFormat(value, serviceName);
+                try {
+                    validateYantraPortFormat(value, serviceName);
+                } catch (error) {
+                    // Re-throw to stop processing - port format is critical
+                    throw error;
+                }
             }
         }
     }
@@ -129,13 +128,7 @@ function validateYantraPortFormat(portValue, serviceName) {
         
         if (!match) {
             throw new Error(
-                `❌ Invalid yantra.port format in service "${serviceName}"!\n` +
-                `   Found: "${entry}"\n` +
-                `   Expected format: "PORT (PROTOCOL - Label)"\n` +
-                `   Example: "8093 (HTTPS - Web UI)" or "8093 (HTTP - API), 8094 (HTTPS - Admin)"\n` +
-                `   \n` +
-                `   The protocol MUST be included in the port label.\n` +
-                `   Remove any separate yantra.protocol label.`
+                `Invalid yantra.port format in service "${serviceName}": "${entry}"`
             );
         }
         
@@ -151,8 +144,143 @@ function validateYantraPortFormat(portValue, serviceName) {
     }
 }
 
+function extractYantraLabels(service) {
+    const labels = {};
+    const serviceLabels = service.labels;
+    
+    if (Array.isArray(serviceLabels)) {
+        for (const label of serviceLabels) {
+            if (typeof label !== 'string') continue;
+            const idx = label.indexOf('=');
+            if (idx === -1) continue;
+            const key = label.slice(0, idx).trim();
+            const value = label.slice(idx + 1).trim();
+            if (key.startsWith('yantra.')) {
+                labels[key] = value;
+            }
+        }
+    } else if (serviceLabels && typeof serviceLabels === 'object') {
+        for (const [key, value] of Object.entries(serviceLabels)) {
+            if (key.startsWith('yantra.')) {
+                labels[key] = value;
+            }
+        }
+    }
+    
+    return labels;
+}
+
+function validateYantraLabels(appName, composeObj) {
+    const errors = [];
+    const warnings = [];
+    const services = composeObj && typeof composeObj === 'object' ? (composeObj.services || {}) : {};
+    
+    // Check if there's at least one service with yantra labels
+    let hasYantraLabels = false;
+    let yantraLabels = {};
+    let serviceName = '';
+    
+    for (const [svcName, service] of Object.entries(services)) {
+        if (!service || typeof service !== 'object') continue;
+        const labels = extractYantraLabels(service);
+        
+        if (Object.keys(labels).length > 0) {
+            hasYantraLabels = true;
+            yantraLabels = labels;
+            serviceName = svcName;
+            break;
+        }
+    }
+    
+    if (!hasYantraLabels) {
+        errors.push(`No yantra labels found in any service`);
+        return { errors, warnings };
+    }
+    
+    // 1. Check required labels
+    const requiredLabels = ['yantra.name', 'yantra.category', 'yantra.description', 'yantra.website'];
+    for (const required of requiredLabels) {
+        if (!yantraLabels[required]) {
+            errors.push(`Missing required label: ${required}`);
+        }
+    }
+    
+    // 2. Validate yantra.name format
+    if (yantraLabels['yantra.name']) {
+        const name = yantraLabels['yantra.name'];
+        if (name !== name.trim()) {
+            errors.push(`yantra.name has leading/trailing whitespace: "${name}"`);
+        }
+        if (name.length === 0) {
+            errors.push(`yantra.name is empty`);
+        }
+    }
+    
+    // 3. Validate yantra.logo (if present)
+    if (yantraLabels['yantra.logo']) {
+        const logo = yantraLabels['yantra.logo'];
+        // Check if it's an IPFS CID (basic validation)
+        if (logo.includes('://')) {
+            warnings.push(`yantra.logo should be an IPFS CID, not a full URL: "${logo}"`);
+        } else if (!/^Qm[a-zA-Z0-9]{44}$/.test(logo) && !/^baf[a-zA-Z0-9]+$/.test(logo)) {
+            warnings.push(`yantra.logo doesn't appear to be a valid IPFS CID: "${logo}"`);
+        }
+    }
+    
+    // 4. Validate yantra.category
+    if (yantraLabels['yantra.category']) {
+        const category = yantraLabels['yantra.category'];
+        const categories = category.split(',').map(c => c.trim()).filter(Boolean);
+        
+        if (categories.length === 0) {
+            errors.push(`yantra.category is empty`);
+        } else if (categories.length > 3) {
+            errors.push(`yantra.category has ${categories.length} categories (max 3 allowed)`);
+        }
+        
+        for (const cat of categories) {
+            if (cat !== cat.toLowerCase()) {
+                errors.push(`yantra.category must be lowercase: "${cat}"`);
+            }
+            if (!/^[a-z0-9-]+$/.test(cat)) {
+                errors.push(`yantra.category contains invalid characters: "${cat}" (only lowercase letters, numbers, and hyphens allowed)`);
+            }
+        }
+    }
+    
+    // 5. Validate yantra.description
+    if (yantraLabels['yantra.description']) {
+        const description = yantraLabels['yantra.description'];
+        if (description.length > 120) {
+            errors.push(`yantra.description is too long (${description.length} chars, max 120): "${description.substring(0, 50)}..."`);
+        }
+        if (description.length === 0) {
+            errors.push(`yantra.description is empty`);
+        }
+    }
+    
+    // 6. Validate yantra.website
+    if (yantraLabels['yantra.website']) {
+        const website = yantraLabels['yantra.website'];
+        if (!website.startsWith('http://') && !website.startsWith('https://')) {
+            errors.push(`yantra.website must be a valid URL starting with http:// or https://: "${website}"`);
+        }
+    }
+    
+    // 7. Validate yantra.port format (if present)
+    if (yantraLabels['yantra.port']) {
+        try {
+            validateYantraPortFormat(yantraLabels['yantra.port'], serviceName);
+        } catch (error) {
+            errors.push(`yantra.port format error: ${error.message}`);
+        }
+    }
+    
+    return { errors, warnings };
+}
+
 async function detectPortConflict() {
-    const appsDir = path.join(__dirname, 'apps');
+    const appsDir = path.join(__dirname, '..', 'apps');
     const portToFiles = new Map();
     const conflictingPorts = new Set();
 
@@ -200,22 +328,120 @@ async function detectPortConflict() {
     return { conflict: true, port, files };
 }
 
+async function validateAllApps() {
+    const appsDir = path.join(__dirname, '..', 'apps');
+    const validationResults = [];
+    let hasErrors = false;
+
+    let entries;
+    try {
+        entries = await fs.promises.readdir(appsDir, { withFileTypes: true });
+    } catch {
+        return { hasErrors: true, results: [{ app: 'system', path: 'N/A', errors: ['Failed to read apps directory'], warnings: [] }] };
+    }
+
+    const apps = entries.filter(e => e.isDirectory()).map(e => e.name).sort();
+    for (const appName of apps) {
+        const composePath = path.join(appsDir, appName, 'compose.yml');
+        const composePathForOutput = path.relative(__dirname, composePath).replace(/\\/g, '/');
+        
+        let composeContent;
+        try {
+            composeContent = await fs.promises.readFile(composePath, 'utf8');
+        } catch {
+            validationResults.push({
+                app: appName,
+                path: composePathForOutput,
+                errors: ['compose.yml not found'],
+                warnings: []
+            });
+            hasErrors = true;
+            continue;
+        }
+
+        let composeObj;
+        try {
+            composeObj = YAML.parse(composeContent);
+        // Validate labels (but don't stop on port format errors in this phase)
+        } catch (error) {
+            validationResults.push({
+                app: appName,
+                path: composePathForOutput,
+                errors: [`Invalid YAML: ${error.message}`],
+                warnings: []
+            });
+            hasErrors = true;
+            continue;
+        }
+
+        const { errors, warnings } = validateYantraLabels(appName, composeObj);
+        
+        if (errors.length > 0 || warnings.length > 0) {
+            validationResults.push({
+                app: appName,
+                path: composePathForOutput,
+                errors,
+                warnings
+            });
+            
+            if (errors.length > 0) {
+                hasErrors = true;
+            }
+        }
+    }
+
+    return { hasErrors, results: validationResults };
+}
+
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-    detectPortConflict().then(result => {
-        if (result.conflict) {
+    (async () => {
+        console.log('🔍 Running Yantra app validation...\n');
+        
+        // 1. Check port conflicts
+        const portResult = await detectPortConflict();
+        if (portResult.conflict) {
             console.error('❌ Port conflicts detected!');
-            console.error(`Port ${result.port} is used by multiple apps:`);
-            result.files.forEach(file => console.error(`  - ${file}`));
-            process.exit(1);
+            console.error(`Port ${portResult.port} is used by multiple apps:`);
+            portResult.files.forEach(file => console.error(`  - ${file}`));
+            console.error('');
         } else {
             console.log('✅ No port conflicts found');
+        }
+        
+        // 2. Validate labels
+        const labelResult = await validateAllApps();
+        if (labelResult.results.length > 0) {
+            console.log('\n📋 Label validation results:\n');
+            
+            for (const result of labelResult.results) {
+                console.log(`📦 ${result.app} (${result.path})`);
+                
+                if (result.errors.length > 0) {
+                    result.errors.forEach(error => console.error(`  ❌ ${error}`));
+                }
+                
+                if (result.warnings.length > 0) {
+                    result.warnings.forEach(warning => console.warn(`  ⚠️  ${warning}`));
+                }
+                
+                console.log('');
+            }
+        } else {
+            console.log('✅ All app labels are valid');
+        }
+        
+        // Exit with error if any issues found
+        if (portResult.conflict || labelResult.hasErrors) {
+            process.exit(1);
+        } else {
+            console.log('\n✅ All checks passed!');
             process.exit(0);
         }
-    }).catch(error => {
-        console.error('❌ Error running port check:', error.message);
+    })().catch(error => {
+        console.error('❌ Error running validation:', error.message);
         process.exit(1);
     });
 }
 
-export { detectPortConflict };
+export { detectPortConflict, validateAllApps };
