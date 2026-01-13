@@ -13,6 +13,11 @@ const router = createRouter({
       component: () => import(/* webpackChunkName: "apps" */ './views/Apps.vue')
     },
     {
+      path: '/apps/:appname',
+      name: 'app-detail',
+      component: () => import(/* webpackChunkName: "app-detail" */ './views/AppDetail.vue')
+    },
+    {
       path: '/containers',
       name: 'containers',
       component: () => import(/* webpackChunkName: "containers" */ './views/Containers.vue')
