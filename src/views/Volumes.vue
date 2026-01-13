@@ -62,7 +62,8 @@ async function startBrowsing(volumeName) {
       
       // Open browser in new tab
       if (data.port) {
-        const url = `http://localhost:${data.port}`
+        const host = window.location.hostname || 'localhost'
+        const url = `http://${host}:${data.port}`
         window.open(url, '_blank')
       }
     }
