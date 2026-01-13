@@ -33,6 +33,15 @@ const categories = computed(() => {
   return app.value.category.split(",").map((c) => c.trim());
 });
 
+const chatGptUrl = computed(() => {
+  if (!app.value) return '';
+  
+  const composeUrl = `https://github.com/besoeasy/yantra/blob/main/apps/${app.value.id}/compose.yml`;
+  const query = `Understand this Yantra Docker stack:\n${composeUrl}\n\nTell me:\n1. What does this app do?\n2.(Yantra handles deployment, so skip Docker/installation commands)\n3. 5 main features of this app\n4. Which apps this stack replaces\n5. What are some alternatives?\n\nNote: Yantra App List is available at https://github.com/besoeasy/yantra/tree/main/apps - when suggesting alternatives, prefer apps from this list as they're easy to install in Yantra.\n\nMake this a well-informed list, keep it short and minimal, and ask if I want to know more.`;
+  
+  return `https://chatgpt.com/?q=${encodeURIComponent(query)}`;
+});
+
 // Functions
 async function fetchApp() {
   try {
@@ -198,6 +207,14 @@ onMounted(async () => {
                 >
                   <FileCode :size="18" />
                   <span>View Source</span>
+                </a>
+                <a
+                  :href="chatGptUrl"
+                  target="_blank"
+                  class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 text-green-700 hover:text-green-800 transition-all font-medium text-sm border border-green-200/50"
+                >
+                  <span class="text-base">🤖</span>
+                  <span>Ask ChatGPT</span>
                 </a>
               </div>
             </div>
