@@ -15,7 +15,6 @@ const selectedApp = ref(null);
 const envValues = ref({});
 const appSearch = ref("");
 const apiUrl = ref("");
-const musthaveapps = ["dufs", "watchtower"];
 const temporaryInstall = ref(false);
 const expirationHours = ref(24);
 const selectedCategory = ref(null);
@@ -271,23 +270,15 @@ onMounted(async () => {
         <div class="text-gray-500 font-medium">No apps found</div>
         <div class="text-sm text-gray-400 mt-2">Try a different search term</div>
       </div>
-      <div v-else class="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div v-else class="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         <div
           v-for="(app, index) in combinedApps"
           :key="app.id"
           :style="{ animationDelay: `${index * 30}ms` }"
-          class="group bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 transition-all duration-500 ease-out hover:bg-white hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex flex-col animate-fadeIn"
+          class="group bg-white/80 backdrop-blur-sm p-4 sm:p-6 transition-all duration-500 ease-out hover:bg-white hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex flex-col animate-fadeIn"
         >
-          <!-- App Logo & Name Section -->
           <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
             <div class="relative flex-shrink-0">
-              <!-- Recommended Badge on Logo -->
-              <div
-                v-if="musthaveapps.includes(app.id)"
-                class="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg z-10 animate-pulse"
-              >
-                <span class="text-[10px] sm:text-xs">⭐</span>
-              </div>
               <img
                 :src="app.logo"
                 :alt="app.name"
