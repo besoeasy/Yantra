@@ -1,0 +1,22 @@
+services:
+  homarr:
+    container_name: homarr
+    image: ghcr.io/homarr-labs/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Optional, only if you want docker integration
+      - homarr_data:/appdata
+    environment:
+      - SECRET_ENCRYPTION_KEY=${HOMARR_ENCRYPTION_KEY:-2dff4b06831e4608cc93dfee6fbe55b29ff0ee189cafd23ccc128698dae55884}
+    ports:
+      - "7575"
+    labels:
+      yantra.name: "Homarr"
+      yantra.description: "Modern customizable dashboard with 30+ integrations and 10K+ icons"
+      yantra.category: "dashboard,tools"
+      yantra.port: "7575 (Web UI)"
+      yantra.logo: "QmbzneVDy4kGiwYkUpPMFWHFk3RvtdPhdKtzK2zQqByXjL"
+      yantra.website: "https://github.com/homarr-labs/homarr"
+
+volumes:
+  homarr_data:
