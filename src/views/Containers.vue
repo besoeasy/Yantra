@@ -203,6 +203,14 @@ onMounted(async () => {
           Volume Browsers
           <span class="text-sm font-normal text-gray-500">({{ volumeBrowsers.length }})</span>
         </h3>
+        
+        <!-- Info Message -->
+        <div class="mb-4 p-3 sm:p-4 bg-purple-50 border border-purple-200 rounded-xl">
+          <p class="text-xs sm:text-sm text-purple-800">
+            <span class="font-semibold">💡 Safe to Close:</span> These are temporary file browsers. Deleting them won't affect your data - the volumes remain intact. You can always start a new browser from the Volumes page.
+          </p>
+        </div>
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
           <div v-for="(container, index) in volumeBrowsers" :key="container.id"
             :style="{ animationDelay: `${index * 50}ms` }"
