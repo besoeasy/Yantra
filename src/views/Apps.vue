@@ -1,29 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useToast } from "vue-toastification";
-import {
-  Globe,
-  FileCode,
-  Tag,
-  Grid3x3,
-  FileText,
-  Bitcoin,
-  Wallet,
-  Play,
-  Wifi,
-  Users,
-  Home,
-  Brain,
-  Code2,
-  Package,
-  Network,
-  Server,
-  Cloud,
-  Shield,
-  Wrench,
-  Download,
-  HardDrive,
-} from "lucide-vue-next";
+import { Globe, FileCode, Tag, Grid3x3 } from "lucide-vue-next";
 
 const toast = useToast();
 
@@ -58,35 +36,6 @@ const uninstalledApps = computed(() => {
 
 const allAppsCount = computed(() => uninstalledApps.value.length);
 
-// Category icon mapping
-const categoryIcons = {
-  all: Grid3x3,
-  productivity: FileText,
-  "files & productivity": FileText,
-  bitcoin: Bitcoin,
-  finance: Wallet,
-  media: Play,
-  networking: Wifi,
-  network: Network,
-  social: Users,
-  "home & automation": Home,
-  automation: Home,
-  ai: Brain,
-  "developer tools": Code2,
-  tools: Wrench,
-  utility: Package,
-  security: Shield,
-  storage: HardDrive,
-  cloud: Cloud,
-  server: Server,
-  download: Download,
-};
-
-function getCategoryIcon(categoryName) {
-  const normalized = categoryName.toLowerCase();
-  return categoryIcons[normalized] || Tag;
-}
-
 const categories = computed(() => {
   const categorySet = new Set();
   apps.value.forEach((app) => {
@@ -99,16 +48,18 @@ const categories = computed(() => {
 
   const categoriesArray = Array.from(categorySet).sort();
 
-  // Calculate count for each category
-  return categoriesArray.map((cat) => {
-    const count = uninstalledApps.value.filter((app) =>
-      app.category
-        .split(",")
-        .map((c) => c.trim())
-        .includes(cat)
-    ).length;
-    return { name: cat, count };
-  });
+  // Calculate count for each category and filter out categories with less than 2 apps
+  return categoriesArray
+    .map((cat) => {
+      const count = uninstalledApps.value.filter((app) =>
+        app.category
+          .split(",")
+          .map((c) => c.trim())
+          .includes(cat)
+      ).length;
+      return { name: cat, count };
+    })
+    .filter((cat) => cat.count >= 2);
 });
 
 const combinedApps = computed(() => {
@@ -365,8 +316,8 @@ onMounted(async () => {
             {{ app.description || "No description available" }}
           </p>
 
-          <!-- Actions -->
-          <div class="flex items-center gap-2">
+          <!-- Actions - Visible only on hover -->
+          <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               @click="deployApp(app.id)"
               :disabled="deploying === app.id"
@@ -516,8 +467,8 @@ onMounted(async () => {
             class="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group"
           >
             <component
-              :is="getCategoryIcon(category.name)"
-              :size="20"
+              :is="Tag"
+              :size="18"
               :class="selectedCategory === category.name ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'"
               class="flex-shrink-0 transition-colors"
             />
