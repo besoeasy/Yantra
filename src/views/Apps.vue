@@ -301,7 +301,7 @@ onMounted(async () => {
               </h3>
               <div class="flex flex-wrap gap-1">
                 <span
-                  v-for="(cat, idx) in app.category.split(',').slice(0, 2)"
+                  v-for="(cat, idx) in app.category.split(',').slice(0, 3)"
                   :key="cat"
                   class="text-xs px-2 py-0.5 rounded-md bg-blue-50/30 text-blue-700 font-medium"
                 >
