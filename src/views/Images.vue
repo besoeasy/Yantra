@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
+import { HardDrive, Trash2, CheckCircle2, AlertCircle, Image as ImageIcon } from 'lucide-vue-next'
 
 const toast = useToast()
 
@@ -96,68 +97,96 @@ onMounted(() => {
 
 <template>
   <div class="p-4 sm:p-6 md:p-10 lg:p-12">
-    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-12 text-gray-900 tracking-tight">Images</h2>
+    <div class="mb-6 md:mb-8">
+      <div class="flex items-center gap-3 mb-2">
+        <HardDrive class="w-8 h-8 text-blue-600" />
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900">Docker Images</h2>
+      </div>
+      <p class="text-sm sm:text-base text-gray-600">Manage your Docker images and free up disk space</p>
+    </div>
     
     <div v-if="loading" class="text-center py-16">
+      <div class="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
       <div class="text-gray-500 font-medium">Loading images...</div>
     </div>
     <div v-else>
       <!-- Summary Stats -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-12">
-        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 smooth-shadow border border-gray-200">
-          <div class="text-gray-500 text-[10px] sm:text-xs font-semibold uppercase tracking-wide mb-1 sm:mb-2">Total Images</div>
-          <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{{ imagesData.total || 0 }}</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-10">
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 sm:p-6 smooth-shadow border border-blue-100 transition-all hover:shadow-lg hover:-translate-y-0.5">
+          <div class="flex items-center gap-2 mb-3">
+            <ImageIcon class="w-4 h-4 text-blue-600" />
+            <div class="text-blue-700 text-xs font-bold uppercase tracking-wider">Total</div>
+          </div>
+          <div class="text-3xl sm:text-4xl font-bold text-blue-900">{{ imagesData.total || 0 }}</div>
         </div>
-        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 smooth-shadow border border-gray-200">
-          <div class="text-gray-500 text-[10px] sm:text-xs font-semibold uppercase tracking-wide mb-1 sm:mb-2">Used Images</div>
-          <div class="text-2xl sm:text-3xl font-bold text-green-600">{{ imagesData.used || 0 }}</div>
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 sm:p-6 smooth-shadow border border-green-100 transition-all hover:shadow-lg hover:-translate-y-0.5">
+          <div class="flex items-center gap-2 mb-3">
+            <CheckCircle2 class="w-4 h-4 text-green-600" />
+            <div class="text-green-700 text-xs font-bold uppercase tracking-wider">In Use</div>
+          </div>
+          <div class="text-3xl sm:text-4xl font-bold text-green-900">{{ imagesData.used || 0 }}</div>
         </div>
-        <div class="glass rounded-xl sm:rounded-2xl p-4 sm:p-5 smooth-shadow">
-          <div class="text-gray-500 text-[10px] sm:text-xs font-semibold uppercase tracking-wide mb-1 sm:mb-2">Unused Images</div>
-          <div class="text-2xl sm:text-3xl font-bold text-orange-600">{{ imagesData.unused || 0 }}</div>
+        <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-5 sm:p-6 smooth-shadow border border-orange-100 transition-all hover:shadow-lg hover:-translate-y-0.5">
+          <div class="flex items-center gap-2 mb-3">
+            <AlertCircle class="w-4 h-4 text-orange-600" />
+            <div class="text-orange-700 text-xs font-bold uppercase tracking-wider">Unused</div>
+          </div>
+          <div class="text-3xl sm:text-4xl font-bold text-orange-900">{{ imagesData.unused || 0 }}</div>
         </div>
-        <div class="glass rounded-xl sm:rounded-2xl p-4 sm:p-5 smooth-shadow">
-          <div class="text-gray-500 text-[10px] sm:text-xs font-semibold uppercase tracking-wide mb-1 sm:mb-2">Unused Space</div>
-          <div class="text-xl sm:text-2xl md:text-3xl font-bold text-red-600">{{ imagesData.unusedSize || 0 }} <span class="text-sm sm:text-base md:text-lg">MB</span></div>
+        <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl p-5 sm:p-6 smooth-shadow border border-red-100 transition-all hover:shadow-lg hover:-translate-y-0.5">
+          <div class="flex items-center gap-2 mb-3">
+            <HardDrive class="w-4 h-4 text-red-600" />
+            <div class="text-red-700 text-xs font-bold uppercase tracking-wider">Space</div>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold text-red-900">{{ imagesData.unusedSize || 0 }} <span class="text-base sm:text-lg font-semibold">MB</span></div>
         </div>
       </div>
 
       <!-- Unused Images Section -->
-      <div v-if="imagesData.unusedImages && imagesData.unusedImages.length > 0" class="mb-6 md:mb-8">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-          <h3 class="text-lg sm:text-xl font-bold text-orange-600 flex items-center gap-2">
-            <span>🗑️</span>
-            <span>Unused Images</span>
-          </h3>
-          <button @click="deleteAllUnusedImages"
-            :disabled="deletingAllImages"
-            class="w-full sm:w-auto px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-all smooth-shadow active:scale-95 touch-manipulation">
-            {{ deletingAllImages ? 'Deleting All...' : '🗑️ Delete All Unused' }}
-          </button>
+      <div v-if="imagesData.unusedImages && imagesData.unusedImages.length > 0" class="mb-8 md:mb-10">
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-4 sm:p-5 mb-5 border border-orange-200">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2.5 mb-1">
+                <AlertCircle class="w-5 h-5 text-orange-600" />
+                <h3 class="text-lg sm:text-xl font-bold text-orange-900">Unused Images</h3>
+              </div>
+              <p class="text-xs sm:text-sm text-orange-700">These images are not used by any containers and can be safely deleted</p>
+            </div>
+            <button @click="deleteAllUnusedImages"
+              :disabled="deletingAllImages"
+              class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-all smooth-shadow active:scale-95 touch-manipulation flex items-center justify-center gap-2 whitespace-nowrap">
+              <Trash2 class="w-4 h-4" />
+              <span>{{ deletingAllImages ? 'Deleting...' : 'Delete All' }}</span>
+            </button>
+          </div>
         </div>
         <div class="space-y-3">
           <div v-for="image in imagesData.unusedImages" :key="image.id"
-            class="glass rounded-xl sm:rounded-2xl p-4 sm:p-5 card-hover smooth-shadow">
+            class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 hover:border-orange-300 transition-all smooth-shadow hover:shadow-lg">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div class="flex-1 w-full sm:w-auto">
-                <div class="flex items-center gap-2.5 sm:gap-3 mb-2">
-                  <span class="text-xl sm:text-2xl">🖼️</span>
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-orange-100 rounded-lg">
+                    <ImageIcon class="w-5 h-5 text-orange-600" />
+                  </div>
                   <div class="flex-1 min-w-0">
                     <div class="font-bold text-gray-900 text-sm sm:text-base break-all">{{ image.tags.join(', ') }}</div>
-                    <div class="text-xs sm:text-sm text-gray-500 font-mono">{{ image.shortId }}</div>
+                    <div class="text-xs text-gray-500 font-mono mt-0.5">{{ image.shortId }}</div>
                   </div>
                 </div>
               </div>
               <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                <div class="text-left sm:text-right flex-1 sm:flex-initial">
-                  <div class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide">Size</div>
-                  <div class="font-bold text-gray-900 text-sm sm:text-base">{{ image.size }} MB</div>
+                <div class="px-3 py-1.5 bg-gray-100 rounded-lg">
+                  <div class="text-xs text-gray-500 font-semibold mb-0.5">Size</div>
+                  <div class="font-bold text-gray-900 text-sm">{{ image.size }} MB</div>
                 </div>
                 <button @click="deleteImage(image.id, image.tags[0])"
                   :disabled="deletingImage === image.id"
-                  class="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl text-xs sm:text-sm font-semibold transition-all smooth-shadow active:scale-95 touch-manipulation whitespace-nowrap"
+                  class="px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-all smooth-shadow active:scale-95 touch-manipulation flex items-center gap-2 whitespace-nowrap"
                   title="Delete this image">
-                  {{ deletingImage === image.id ? 'Deleting...' : '🗑️ Delete' }}
+                  <Trash2 class="w-4 h-4" />
+                  <span>{{ deletingImage === image.id ? 'Deleting...' : 'Delete' }}</span>
                 </button>
               </div>
             </div>
@@ -167,30 +196,36 @@ onMounted(() => {
 
       <!-- Used Images Section -->
       <div v-if="imagesData.usedImages && imagesData.usedImages.length > 0">
-        <h3 class="text-lg sm:text-xl font-bold mb-4 text-green-600 flex items-center gap-2">
-          <span>✅</span>
-          <span>Images in Use</span>
-        </h3>
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 sm:p-5 mb-5 border border-green-200">
+          <div class="flex items-center gap-2.5">
+            <CheckCircle2 class="w-5 h-5 text-green-600" />
+            <h3 class="text-lg sm:text-xl font-bold text-green-900">Images in Use</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-green-700 mt-1 ml-7">These images are actively used by running containers</p>
+        </div>
         <div class="space-y-3">
           <div v-for="image in imagesData.usedImages" :key="image.id"
-            class="glass rounded-xl sm:rounded-2xl p-4 sm:p-5 smooth-shadow">
+            class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 hover:border-green-300 transition-all smooth-shadow hover:shadow-lg">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div class="flex-1 w-full sm:w-auto">
-                <div class="flex items-center gap-2.5 sm:gap-3 mb-2">
-                  <span class="text-xl sm:text-2xl">🖼️</span>
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-green-100 rounded-lg">
+                    <ImageIcon class="w-5 h-5 text-green-600" />
+                  </div>
                   <div class="flex-1 min-w-0">
                     <div class="font-bold text-gray-900 text-sm sm:text-base break-all">{{ image.tags.join(', ') }}</div>
-                    <div class="text-xs sm:text-sm text-gray-500 font-mono">{{ image.shortId }}</div>
+                    <div class="text-xs text-gray-500 font-mono mt-0.5">{{ image.shortId }}</div>
                   </div>
                 </div>
               </div>
               <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                <div class="text-left sm:text-right flex-1 sm:flex-initial">
-                  <div class="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wide">Size</div>
-                  <div class="font-bold text-gray-900 text-sm sm:text-base">{{ image.size }} MB</div>
+                <div class="px-3 py-1.5 bg-gray-100 rounded-lg">
+                  <div class="text-xs text-gray-500 font-semibold mb-0.5">Size</div>
+                  <div class="font-bold text-gray-900 text-sm">{{ image.size }} MB</div>
                 </div>
-                <div class="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap">
-                  In Use
+                <div class="px-4 py-2.5 bg-gradient-to-r from-green-100 to-emerald-100 border border-green-200 text-green-700 rounded-xl text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+                  <CheckCircle2 class="w-4 h-4" />
+                  <span>In Use</span>
                 </div>
               </div>
             </div>
@@ -199,9 +234,12 @@ onMounted(() => {
       </div>
 
       <div v-if="!imagesData.unusedImages || (imagesData.unusedImages.length === 0 && imagesData.usedImages.length === 0)"
-        class="text-center py-16">
-        <div class="text-5xl mb-4">🖼️</div>
-        <div class="text-gray-500 font-medium">No images found</div>
+        class="text-center py-16 sm:py-20">
+        <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <ImageIcon class="w-8 h-8 text-gray-400" />
+        </div>
+        <div class="text-gray-900 font-bold text-xl mb-2">No Images Found</div>
+        <div class="text-gray-500 text-sm">Docker images will appear here once you install apps</div>
       </div>
     </div>
   </div>
