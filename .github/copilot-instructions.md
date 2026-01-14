@@ -4,15 +4,6 @@
 
 Follow the structure and naming conventions outlined in `apps/apps.md` for all application directories and `compose.yml` files. if you need better understanding feel free to pick 5 random apps from the `apps/` directory and study their structure.
 
-If you need Something uploaded to IPFS you can use
-
-curl -X POST https://filedrop.besoeasy.com/remoteupload \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com/image.png"}'
-Replace `https://example.com/image.png` with your file URL. On successful
-
-command it returns the IPFS hash in response. result.cid is the hash you need.
-
 ## UI Design Standards
 
 ### CSS Framework
