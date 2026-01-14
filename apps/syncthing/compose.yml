@@ -7,9 +7,9 @@ services:
       - syncthing_data:/var/syncthing
     ports:
       - "8384" # Web UI
-      - "22000:22000/tcp" # Sync TCP
-      - "22000:22000/udp" # Sync UDP
-      - "21027:21027/udp" # Discovery
+      - "22000/tcp" # Sync TCP
+      - "22000/udp" # Sync UDP
+      - "21027/udp" # Discovery
     restart: unless-stopped
     labels:
       yantra.name: "Syncthing"
