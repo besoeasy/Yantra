@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Store, ArrowRight } from 'lucide-vue-next'
+import { Store, ArrowRight, AlertTriangle } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -9,6 +9,7 @@ const containers = ref([])
 const loading = ref(false)
 const apiUrl = ref('')
 const currentTime = ref(Date.now())
+const watchtowerInstalled = ref(false)
 
 // Computed properties to separate volume browsers from regular containers
 const volumeBrowsers = computed(() => 
@@ -63,6 +64,14 @@ async function fetchContainers() {
     if (data.success) {
       // Show all containers, not just running ones (includes starting, created, restarting states)
       containers.value = data.containers
+      
+      // Check if Watchtower is installed (check both name and Names fields)
+      watchtowerInstalled.value = data.containers.some(c => 
+        c.name?.toLowerCase().includes('watchtower') || 
+        c.Names?.some(name => name.toLowerCase().includes('watchtower'))
+      )
+      
+      console.log('Watchtower installed:', watchtowerInstalled.value)
     }
   } catch (error) {
     console.error('Failed to fetch containers:', error)
@@ -95,6 +104,31 @@ onMounted(async () => {
     <div class="mb-6 md:mb-8">
       <h2 class="text-3xl sm:text-4xl font-bold mb-2 text-gray-900">Running Containers</h2>
       <p class="text-sm sm:text-base text-gray-600">Manage your active Docker containers</p>
+    </div>
+
+    <!-- Watchtower Warning Banner -->
+    <div v-if="!loading && !watchtowerInstalled" 
+      @click="router.push('/apps/watchtower')"
+      class="mb-6 bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 rounded-xl p-4 sm:p-5 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] group">
+      <div class="flex items-start gap-3 sm:gap-4">
+        <div class="flex-shrink-0">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+            <AlertTriangle :size="20" class="sm:w-6 sm:h-6 text-white" />
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
+            Watchtower Not Installed
+          </h3>
+          <p class="text-sm sm:text-base text-gray-700 mb-2">
+            Auto-updates are currently disabled. Install Watchtower to keep your Yantra installation up to date automatically.
+          </p>
+          <div class="flex items-center gap-2 text-orange-600 font-semibold text-sm group-hover:gap-3 transition-all">
+            <span>Install Watchtower</span>
+            <ArrowRight :size="16" class="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </div>
+      </div>
     </div>
     
     <div v-if="loading" class="text-center py-16">
