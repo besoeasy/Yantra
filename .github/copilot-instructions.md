@@ -47,5 +47,4 @@ API is located in the `/api/` directory. Follow these guidelines when creating o
 
 After making any changes to the codebase:
 
-- ✅ Run `node /api/check.js` to verify no conflicts were introduced
 - ✅ Verify all required labels are present for new apps
