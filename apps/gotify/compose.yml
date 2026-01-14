@@ -1,0 +1,21 @@
+services:
+  gotify:
+    image: ghcr.io/gotify/server
+    container_name: gotify
+    labels:
+      yantra.name: "Gotify"
+      yantra.category: "notification,tools"
+      yantra.port: "80 (HTTP - Web UI)"
+      yantra.description: "Self-hosted push notification service for sending and receiving notifications"
+      yantra.website: "https://github.com/gotify/server"
+    ports:
+      - "80"
+    environment:
+      - GOTIFY_DEFAULTUSER_NAME=${GOTIFY_DEFAULTUSER_NAME:-admin}
+      - GOTIFY_DEFAULTUSER_PASS=${GOTIFY_DEFAULTUSER_PASS:-admin}
+    volumes:
+      - gotify_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  gotify_data:

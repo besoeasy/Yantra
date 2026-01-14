@@ -1,0 +1,20 @@
+services:
+  privatebin:
+    image: privatebin/nginx-fpm-alpine:latest
+    container_name: privatebin
+    labels:
+      yantra.name: "PrivateBin"
+      yantra.category: "utility,privacy"
+      yantra.port: "8080 (HTTP - Web UI)"
+      yantra.description: "Minimalist, open source online pastebin with zero-knowledge server design"
+      yantra.website: "https://github.com/PrivateBin/PrivateBin"
+    ports:
+      - "8080"
+    volumes:
+      - privatebin_data:/srv/data
+      - privatebin_config:/srv/cfg
+    restart: unless-stopped
+
+volumes:
+  privatebin_data:
+  privatebin_config:
