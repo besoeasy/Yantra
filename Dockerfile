@@ -1,51 +1,52 @@
-# Multi-stage build for optimized image size
-FROM node:lts AS builder
+# =========================
+# Builder stage (Vue build)
+# =========================
+FROM oven/bun:latest AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy dependency files
+COPY package.json bun.lockb ./
 
-# Install ALL dependencies (including devDependencies for building)
-RUN npm install
+# Install ALL deps (including dev)
+RUN bun install
 
-# Copy everything for build
+# Copy source
 COPY . .
 
-# Build Vue.js application
-RUN npm run build
+# Build Vue app
+RUN bun run build
 
+
+# =========================
 # Production stage
-FROM node:24-alpine
+# =========================
+FROM oven/bun:alpine
 
-# Install Docker CLI
+# Install Docker CLI (needed by your app)
 RUN apk add --no-cache docker-cli docker-cli-compose
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy dependency files
+COPY package.json bun.lockb ./
 
-# Install only production dependencies
-RUN npm install --production --no-optional && npm cache clean --force
+# Install only production deps
+RUN bun install --production
 
-# Copy built Vue.js dist folder from builder
+# Copy built frontend
 COPY --from=builder /app/dist ./dist
 
-# Copy API files
+# Copy backend / app files
 COPY api/ ./api/
-
-# Copy apps directory
 COPY apps/ ./apps/
 
 # Expose port
 EXPOSE 5252
 
-# Set environment variables
+# Environment
 ENV PORT=5252
 ENV NODE_ENV=production
 
-# Run the application
-CMD ["npm", "run", "server"]
+# Start server
+CMD ["bun", "run", "server"]
