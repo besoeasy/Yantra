@@ -5,6 +5,21 @@ It gives you ready-to-run apps — from Bitcoin nodes to file converters and pri
 
 Yantra runs alongside your existing system, not as a full operating system replacement, so you keep full control of your machine while enjoying a powerful app ecosystem.
 
+## Run Yantra with Docker
+
+```bash
+docker run -d \
+  --name yantra \
+  -p 80:5252 \
+  -p 443:5252 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --restart unless-stopped \
+  ghcr.io/besoeasy/yantra
+```
+
+[How to install Docker on my system?](https://chatgpt.com/?prompt=how+to+install+docker+on+my+system+%3F)
+
+
 ## Screenshots
 
 <img width="2996" height="2104" src="https://github.com/user-attachments/assets/f0eba908-7da0-4e12-8c03-ed7f3a088e9b" />
@@ -87,17 +102,7 @@ Apps run in complete isolation - no leftovers, no system clutter, no permanent i
 - 🐳 Docker-based (reliable, boot-persistent)
 - 💾 Minimal resource usage (~70MB RAM)
 
-## Run Yantra with Docker
 
-```bash
-docker run -d \
-  --name yantra \
-  -p 80:5252 \
-  -p 443:5252 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  --restart unless-stopped \
-  ghcr.io/besoeasy/yantra
-```
 ### 🔒 Recommended: Tailscale Integration
 
 **We highly recommend installing [Tailscale](https://tailscale.com)** to turn Yantra into your own private cloud. Tailscale creates a secure, private network across all your devices, allowing you to:
