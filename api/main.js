@@ -10,7 +10,6 @@ import { dirname } from "path";
 import { createRequire } from "module";
 
 import { startCleanupScheduler, cleanupExpiredApps } from "./cleanup.js";
-import "./updater.js";
 
 const require = createRequire(import.meta.url);
 const packageJson = require("../package.json");
