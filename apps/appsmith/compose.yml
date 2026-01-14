@@ -1,0 +1,19 @@
+services:
+  appsmith:
+    image: appsmith/appsmith-ce:latest
+    container_name: appsmith
+    labels:
+      yantra.name: "Appsmith"
+      yantra.category: "productivity,development"
+      yantra.port: "80 (HTTP - Web UI), 443 (HTTPS - Web UI)"
+      yantra.description: "Low-code internal tools platform for rapid application development"
+      yantra.website: "https://github.com/appsmithorg/appsmith"
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - appsmith_stacks:/appsmith-stacks
+    restart: unless-stopped
+
+volumes:
+  appsmith_stacks:
