@@ -4,6 +4,7 @@ services:
     container_name: filepizza
     labels:
       yantra.name: "FilePizza"
+      yantra.logo: "Qmd8nM1YVKkCNs1fC4nK1UM1VRy72m9rx4uWbhD2tSq3MJ"
       yantra.category: "file-transfer,p2p"
       yantra.port: "3333 (HTTP - Web UI)"
       yantra.description: "Peer-to-peer file transfer directly in browser with zero-knowledge encryption"

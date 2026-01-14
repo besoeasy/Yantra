@@ -4,6 +4,7 @@ services:
     container_name: nocodb
     labels:
       yantra.name: "NocoDB"
+      yantra.logo: "QmZL6NW1JQJhrx6VnV687WrGM8V1MSW6EDo5CDZr77d3WZ"
       yantra.category: "database,productivity"
       yantra.port: "8080 (HTTP - Web UI)"
       yantra.description: "Open source Airtable alternative - turn databases into smart spreadsheets"
