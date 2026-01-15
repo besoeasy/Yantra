@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { Box, Boxes, Layers, HardDrive, ClipboardList, AlertTriangle, Github, Heart } from 'lucide-vue-next'
+import { Box, Boxes, Layers, HardDrive, ClipboardList, Send, Github, Heart } from 'lucide-vue-next'
 
 const route = useRoute()
 
@@ -84,13 +84,13 @@ const isActive = (name) => route.name === name
           <Github :size="20" />
         </a>
 
-        <!-- Report Issue -->
+        <!-- Telegram Group -->
         <a 
-          href="https://github.com/besoeasy/Yantra/issues/new" 
+          href="https://t.me/+Qu06yCZHBAU3NTk1" 
           target="_blank"
-          class="w-12 h-12 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-all"
-          title="Report Issue">
-          <AlertTriangle :size="20" />
+          class="w-12 h-12 rounded-full flex items-center justify-center text-blue-500 hover:bg-blue-50 transition-all"
+          title="Join Telegram Group">
+          <Send :size="20" />
         </a>
       </div>
     </aside>
