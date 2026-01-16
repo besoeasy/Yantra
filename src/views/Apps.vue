@@ -1,11 +1,9 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { useToast } from "vue-toastification";
 import { Tag, Grid3x3 } from "lucide-vue-next";
 
 const router = useRouter();
-const toast = useToast();
 
 // State
 const apps = ref([]);
@@ -15,28 +13,32 @@ const appSearch = ref("");
 const apiUrl = ref("");
 const selectedCategory = ref(null);
 
+const hourSeed = ref(getDateHourSeed());
+let refreshInterval = null;
+let seedInterval = null;
+
 // Computed
 const installedAppIds = computed(() => {
-  const ids = new Set(containers.value.map((c) => c.app.id));
+  const ids = new Set(containers.value.map((c) => c?.app?.id).filter(Boolean));
   return ids;
 });
 
 const appInstanceCounts = computed(() => {
   const counts = {};
   containers.value.forEach((c) => {
-    if (c.app.id) {
-      counts[c.app.id] = (counts[c.app.id] || 0) + 1;
+    const appId = c?.app?.id;
+    if (appId) {
+      counts[appId] = (counts[appId] || 0) + 1;
     }
   });
   return counts;
 });
 
-const allAppsShuffled = computed(() => {
-  // Show ALL apps (both installed and uninstalled), shuffled
-  return shuffleWithSeed(apps.value).map((app) => ({
-    ...app,
-    isInstalled: installedAppIds.value.has(app.id),
-  }));
+const shuffledApps = computed(() => {
+  // Deterministic shuffle, updated at most once per hour
+  // (hourSeed is kept reactive via a small timer).
+  void hourSeed.value;
+  return shuffleWithSeed(apps.value);
 });
 
 const allAppsCount = computed(() => apps.value.length);
@@ -68,7 +70,10 @@ const categories = computed(() => {
 });
 
 const combinedApps = computed(() => {
-  let combined = [...allAppsShuffled.value];
+  let combined = shuffledApps.value.map((app) => ({
+    ...app,
+    isInstalled: installedAppIds.value.has(app.id),
+  }));
 
   if (selectedCategory.value) {
     combined = combined.filter((app) =>
@@ -161,9 +166,26 @@ onMounted(async () => {
   loading.value = false;
 
   // Auto-refresh every 10 seconds
-  setInterval(() => {
-    fetchContainers();
-  }, 10000);
+  refreshInterval = setInterval(fetchContainers, 10000);
+
+  // Keep hourSeed reactive so we reshuffle at most hourly
+  seedInterval = setInterval(() => {
+    const nextSeed = getDateHourSeed();
+    if (nextSeed !== hourSeed.value) {
+      hourSeed.value = nextSeed;
+    }
+  }, 60_000);
+});
+
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+  if (seedInterval) {
+    clearInterval(seedInterval);
+    seedInterval = null;
+  }
 });
 </script>
 

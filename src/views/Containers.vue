@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Store, ArrowRight, AlertTriangle } from 'lucide-vue-next'
 
@@ -10,6 +10,9 @@ const loading = ref(false)
 const apiUrl = ref('')
 const currentTime = ref(Date.now())
 const watchtowerInstalled = ref(false)
+
+let containersRefreshInterval = null
+let timeRefreshInterval = null
 
 // Computed properties to separate volume browsers from regular containers
 const volumeBrowsers = computed(() => 
@@ -86,14 +89,23 @@ onMounted(async () => {
   loading.value = false
   
   // Auto-refresh containers every 10 seconds
-  setInterval(() => {
-    fetchContainers()
-  }, 10000)
+  containersRefreshInterval = setInterval(fetchContainers, 10000)
   
   // Update current time every minute for countdown
-  setInterval(() => {
+  timeRefreshInterval = setInterval(() => {
     currentTime.value = Date.now()
   }, 60000)
+})
+
+onUnmounted(() => {
+  if (containersRefreshInterval) {
+    clearInterval(containersRefreshInterval)
+    containersRefreshInterval = null
+  }
+  if (timeRefreshInterval) {
+    clearInterval(timeRefreshInterval)
+    timeRefreshInterval = null
+  }
 })
 </script>
 
