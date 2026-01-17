@@ -31,12 +31,18 @@ _[New to Docker? Learn how to install it here.](https://chatgpt.com/?prompt=how+
 
 Most homelab platforms (Umbrel, CasaOS) demand your **entire computer**. Yantra is different.
 
-| Feature        | 🔧 Yantra                     | 🚫 Others (Umbrel/CasaOS)              |
-| :------------- | :---------------------------- | :------------------------------------- |
-| **Philosophy** | App Store (Runs _on_ your OS) | Operating System (Taking over your OS) |
-| **Hardware**   | Your existing Laptop/PC       | Dedicated Pi/Server                    |
-| **Control**    | Full System Access            | Locked Ecosystem                       |
-| **Isolation**  | Clean Docker Containers       | System-wide dependencies               |
+| Feature            | 🔧 Yantra                     | 🚫 Others (Umbrel/CasaOS)              |
+| :----------------- | :---------------------------- | :------------------------------------- |
+| **Philosophy**     | App Store (Runs _on_ your OS) | Operating System (Taking over your OS) |
+| **Hardware**       | Your existing Laptop/PC       | Dedicated Pi/Server                    |
+| **Installation**   | Single Docker command         | Full OS installation required          |
+| **Flexibility**    | Run alongside daily work      | Exclusive computer use                 |
+| **Control**        | Full System Access            | Locked Ecosystem                       |
+| **Resource Usage** | On-demand (start what you use)| Always-on services                     |
+| **Isolation**      | Clean Docker Containers       | System-wide dependencies               |
+| **Portability**    | Easy backup/migration         | Tied to specific hardware              |
+| **Learning Curve** | Familiar Docker workflow      | New OS paradigm to learn               |
+
 
 **The Result?** You get a powerful server-grade environment without sacrificing your daily driver machine.
 
