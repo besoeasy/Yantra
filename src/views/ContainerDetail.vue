@@ -30,6 +30,52 @@ const containerVolumes = computed(() => {
     }))
 })
 
+// Get all port mappings from the container
+const allPortMappings = computed(() => {
+  if (!selectedContainer.value || !selectedContainer.value.ports) {
+    return []
+  }
+  
+  const mappings = []
+  const portKeys = Object.keys(selectedContainer.value.ports)
+  
+  portKeys.forEach(key => {
+    const [privatePort, type] = key.split('/')
+    const bindings = selectedContainer.value.ports[key]
+    
+    if (bindings && bindings.length > 0) {
+      bindings.forEach(binding => {
+        if (binding.HostPort) {
+          mappings.push({
+            containerPort: privatePort,
+            hostPort: binding.HostPort,
+            hostIp: binding.HostIp || '0.0.0.0',
+            protocol: type,
+          })
+        }
+      })
+    } else {
+      // Port exposed but not bound to host
+      mappings.push({
+        containerPort: privatePort,
+        hostPort: null,
+        hostIp: null,
+        protocol: type,
+      })
+    }
+  })
+  
+  // Sort by host port, then by container port
+  return mappings.sort((a, b) => {
+    if (a.hostPort && b.hostPort) {
+      return parseInt(a.hostPort) - parseInt(b.hostPort)
+    }
+    if (a.hostPort && !b.hostPort) return -1
+    if (!a.hostPort && b.hostPort) return 1
+    return parseInt(a.containerPort) - parseInt(b.containerPort)
+  })
+})
+
 const getLabeledPorts = computed(() => {
   if (!selectedContainer.value || !selectedContainer.value.ports) {
     return []
@@ -342,6 +388,88 @@ onUnmounted(() => {
               
               <ArrowRight :size="14" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-indigo-600 transition-all group-hover:translate-x-1" />
             </a>
+          </div>
+        </div>
+
+        <!-- Port Mappings Section -->
+        <div v-if="allPortMappings.length > 0" 
+          class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 transition-shadow hover:shadow-md">
+          <div class="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100">
+              <Network :size="16" class="sm:w-5 sm:h-5 text-indigo-600" />
+            </div>
+            <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Port Mappings</h2>
+            <span class="text-xs sm:text-sm text-gray-500 font-medium">({{ allPortMappings.length }})</span>
+          </div>
+          
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-200">
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Host Port
+                  </th>
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide hidden sm:table-cell">
+                    Container Port
+                  </th>
+                  <th class="text-center py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Protocol
+                  </th>
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide hidden md:table-cell">
+                    Host IP
+                  </th>
+                  <th class="text-right py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Access
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(mapping, index) in allPortMappings" :key="index"
+                  class="border-b border-gray-100 hover:bg-indigo-50/30 transition-colors">
+                  <td class="py-3 px-2 sm:px-4">
+                    <div class="flex flex-col gap-1">
+                      <span v-if="mapping.hostPort" class="text-base sm:text-lg font-bold text-gray-900 font-mono">
+                        {{ mapping.hostPort }}
+                      </span>
+                      <span v-else class="text-sm text-gray-500 italic">
+                        Not bound
+                      </span>
+                      <span class="text-xs text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200 sm:hidden">
+                        Container: {{ mapping.containerPort }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-2 sm:px-4 hidden sm:table-cell">
+                    <span class="text-sm sm:text-base font-semibold text-gray-700 font-mono bg-gray-50 px-2 sm:px-3 py-1 rounded border border-gray-200 inline-block">
+                      {{ mapping.containerPort }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-2 sm:px-4 text-center">
+                    <span class="px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-semibold uppercase inline-block bg-blue-100 text-blue-700">
+                      {{ mapping.protocol }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-2 sm:px-4 hidden md:table-cell">
+                    <span v-if="mapping.hostIp" class="text-xs sm:text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200 inline-block">
+                      {{ mapping.hostIp === '0.0.0.0' ? 'All interfaces' : mapping.hostIp }}
+                    </span>
+                    <span v-else class="text-xs text-gray-500 italic">N/A</span>
+                  </td>
+                  <td class="py-3 px-2 sm:px-4 text-right">
+                    <a v-if="mapping.hostPort && (mapping.protocol === 'tcp')"
+                      :href="appUrl(mapping.hostPort, 'http')"
+                      target="_blank"
+                      class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow-sm hover:shadow-md transition-all active:scale-95 text-xs sm:text-sm group">
+                      <Globe :size="14" />
+                      <span class="hidden sm:inline">Open</span>
+                      <ExternalLink :size="12" class="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </a>
+                    <span v-else class="text-xs text-gray-400">—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
