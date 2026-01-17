@@ -67,6 +67,28 @@ function getExpirationInfo(container) {
   }
 }
 
+// Format container uptime
+function formatUptime(container) {
+  if (!container.created || container.state !== 'running') return null
+  
+  const createdTime = container.created * 1000 // Convert to milliseconds
+  const uptime = currentTime.value - createdTime
+  
+  if (uptime <= 0) return 'Just started'
+  
+  const days = Math.floor(uptime / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((uptime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60))
+  
+  if (days > 0) {
+    return `${days}d ${hours}h`
+  } else if (hours > 0) {
+    return `${hours}h ${minutes}m`
+  } else {
+    return `${minutes}m`
+  }
+}
+
 async function fetchContainers() {
   try {
     const response = await fetch(`${apiUrl.value}/api/containers`)
@@ -213,12 +235,17 @@ onUnmounted(() => {
                 <h3 class="font-bold text-lg text-gray-900 truncate mb-1">
                   {{ container.name }}
                 </h3>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <div :class="container.state === 'running' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
                     class="px-2 py-0.5 rounded-md text-xs font-semibold inline-flex items-center gap-1">
                     <span :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
                       class="w-1.5 h-1.5 rounded-full"></span>
                     {{ container.state }}
+                  </div>
+                  <div v-if="container.state === 'running' && formatUptime(container)"
+                    class="px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 inline-flex items-center gap-1">
+                    <Activity :size="12" />
+                    {{ formatUptime(container) }}
                   </div>
                   <div v-if="isTemporary(container)" 
                     :class="getExpirationInfo(container).isExpiringSoon ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'"
@@ -286,12 +313,17 @@ onUnmounted(() => {
                 <h3 class="font-bold text-lg text-gray-900 truncate mb-1">
                   {{ container.labels['yantra.volume-browser'] }}
                 </h3>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <div :class="container.state === 'running' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
                     class="px-2 py-0.5 rounded-md text-xs font-semibold inline-flex items-center gap-1">
                     <span :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
                       class="w-1.5 h-1.5 rounded-full"></span>
                     {{ container.state }}
+                  </div>
+                  <div v-if="container.state === 'running' && formatUptime(container)"
+                    class="px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 inline-flex items-center gap-1">
+                    <Activity :size="12" />
+                    {{ formatUptime(container) }}
                   </div>
                 </div>
               </div>
