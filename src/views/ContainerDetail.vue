@@ -413,66 +413,59 @@ onUnmounted(() => {
           </div>
           
           <!-- Minimal Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
             <a v-for="(mapping, index) in allPortMappings" :key="index"
               :href="mapping.hostPort && mapping.protocol === 'tcp' ? appUrl(mapping.hostPort, mapping.labeledProtocol || 'http') : undefined"
               :target="mapping.hostPort && mapping.protocol === 'tcp' ? '_blank' : undefined"
-              class="group relative rounded-lg border p-3 sm:p-4 transition-all duration-200 animate-in space-y-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              class="group relative bg-white rounded-lg p-3.5 transition-all duration-200 animate-in hover:shadow-sm border border-gray-100"
               :class="[
-                mapping.label ? 'border-indigo-200 bg-indigo-50/30' : 'border-gray-200 bg-white',
                 mapping.hostPort && mapping.protocol === 'tcp'
-                  ? 'cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-md hover:-translate-y-0.5'
-                  : 'cursor-default bg-gray-50/40 border-gray-200/60'
+                  ? 'cursor-pointer hover:border-gray-200'
+                  : 'cursor-not-allowed opacity-50'
               ]"
-              :style="{ animationDelay: `${Math.min(index * 40, 500)}ms` }">
+              :style="{ animationDelay: `${Math.min(index * 30, 400)}ms` }">
               
-              <!-- Top Row -->
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div
-                    class="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
-                    :class="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg"
-                  >
-                    <component
-                      :is="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).icon"
-                      :size="18"
-                      :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color, 'transition-transform duration-200 group-hover:scale-110']"
-                    />
-                  </div>
-
-                  <div class="min-w-0">
-                    <div v-if="mapping.hostPort" class="text-2xl font-bold text-gray-900 font-mono leading-none">
-                      {{ mapping.hostPort }}
-                    </div>
-                    <div v-else class="text-sm text-gray-400 italic leading-none">Not bound</div>
-                    <div class="mt-0.5 text-xs text-gray-500 font-mono truncate">
-                      :{{ mapping.containerPort }}
-                    </div>
-                  </div>
+              <!-- Star Badge (if labeled) -->
+              <div v-if="mapping.label" class="absolute top-2 right-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+              </div>
+              
+              <!-- Protocol Icon -->
+              <div class="mb-3">
+                <div
+                  class="inline-flex w-9 h-9 rounded-lg items-center justify-center"
+                  :class="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg"
+                >
+                  <component
+                    :is="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).icon"
+                    :size="16"
+                    :class="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color"
+                  />
                 </div>
-
-                <div class="shrink-0 flex items-center gap-2">
-                  <span
-                    class="text-[10px] font-semibold px-2 py-0.5 rounded uppercase border"
-                    :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg, getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color, 'border-transparent']"
-                  >
+              </div>
+              
+              <!-- Port Number -->
+              <div class="mb-2">
+                <div v-if="mapping.hostPort" class="text-3xl font-bold text-gray-900 font-mono leading-none tracking-tight">
+                  {{ mapping.hostPort }}
+                </div>
+                <div v-else class="text-sm text-gray-400">Not bound</div>
+              </div>
+              
+              <!-- Details -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                  <span>→</span>
+                  <span class="font-mono">{{ mapping.containerPort }}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                    :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg, getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color]">
                     {{ getProtocolInfo(mapping.protocol, mapping.labeledProtocol).label }}
                   </span>
-
-                  <span v-if="mapping.label"
-                    class="shrink-0 w-6 h-6 flex items-center justify-center bg-indigo-600 text-white text-xs font-bold rounded-full shadow-sm">
-                    ★
-                  </span>
                 </div>
-              </div>
-              
-              <!-- Description (optional) -->
-              <div v-if="mapping.label" class="text-xs text-gray-700 line-clamp-2 leading-relaxed">
-                {{ mapping.label }}
-              </div>
-              
-              <div v-if="!(mapping.hostPort && mapping.protocol === 'tcp')" class="text-xs text-gray-400">
-                Not accessible
+                
+                <div v-if="mapping.label" class="text-xs text-gray-600 line-clamp-2">
+                  {{ mapping.label }}
+                </div>
               </div>
             </a>
           </div>
