@@ -311,6 +311,50 @@ onUnmounted(() => {
       <!-- All Containers Section -->
       <div v-if="regularContainers.length > 0 || volumeBrowsers.length > 0" class="space-y-4">
         <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); grid-auto-rows: auto;">
+          <!-- Watchtower Not Installed Card -->
+          <div v-if="!watchtowerInstalled"
+               @click="router.push('/apps/watchtower')"
+               class="relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group border-2 border-orange-300">
+            <!-- Animated background pattern -->
+            <div class="absolute inset-0 opacity-10">
+              <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+            </div>
+            
+            <div class="relative">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <AlertTriangle :size="24" class="text-white animate-pulse" />
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-orange-100 uppercase tracking-wider">Action Required</div>
+                    <div class="text-2xl font-black text-white tracking-tight">
+                      Watchtower
+                    </div>
+                  </div>
+                </div>
+                <div class="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                  <ArrowRight :size="16" class="text-white" />
+                </div>
+              </div>
+              
+              <p class="text-white/90 text-sm leading-relaxed mb-3">
+                Enable <span class="font-bold text-white">automatic updates</span> for all your apps every 3 hours.
+              </p>
+              
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 px-2 py-1 bg-white/20 backdrop-blur-sm rounded-lg">
+                  <span class="text-white/90 text-xs">🔄</span>
+                  <span class="text-white text-xs font-semibold">Auto-updates</span>
+                </div>
+                <div class="flex items-center gap-1 px-2 py-1 bg-white/20 backdrop-blur-sm rounded-lg">
+                  <span class="text-white/90 text-xs">🛡️</span>
+                  <span class="text-white text-xs font-semibold">Security</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Regular Application Containers -->
           <div v-for="(container, index) in regularContainers" :key="container.id"
             :style="{ animationDelay: `${index * 50}ms` }"
