@@ -15,6 +15,7 @@ const deleting = ref(false)
 const apiUrl = ref('')
 const refreshingLogs = ref(false)
 const browsingVolume = ref({})
+const showVolumeMenu = ref({})
 let statsInterval = null
 
 // Extract volume names from container mounts
@@ -280,15 +281,21 @@ async function deleteContainer() {
   }
 }
 
-async function browseVolume(volumeName) {
+async function browseVolume(volumeName, expiryMinutes = 60) {
   browsingVolume.value[volumeName] = true
+  showVolumeMenu.value[volumeName] = false
   try {
     const response = await fetch(`${apiUrl.value}/api/volumes/${volumeName}/browse`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ expiryMinutes }),
     })
     const data = await response.json()
     if (data.success) {
-      toast.success(`Volume browser started on port ${data.port}`)
+      const expiryText = expiryMinutes > 0 ? ` (expires in ${expiryMinutes}m)` : ' (no expiry)'
+      toast.success(`Volume browser started on port ${data.port}${expiryText}`)
       
       // Open browser in new tab
       if (data.port) {
@@ -303,6 +310,10 @@ async function browseVolume(volumeName) {
   } finally {
     delete browsingVolume.value[volumeName]
   }
+}
+
+function toggleVolumeMenu(volumeName) {
+  showVolumeMenu.value[volumeName] = !showVolumeMenu.value[volumeName]
 }
 
 onMounted(async () => {
@@ -571,14 +582,36 @@ onUnmounted(() => {
                     </span>
                   </td>
                   <td class="py-3 px-2 sm:px-4 text-right">
-                    <button
-                      @click="browseVolume(volume.name)"
-                      :disabled="browsingVolume[volume.name]"
-                      class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-lg font-semibold shadow-sm hover:shadow-md disabled:shadow-none transition-all active:scale-95 disabled:transform-none disabled:cursor-not-allowed text-xs sm:text-sm">
-                      <Loader2 v-if="browsingVolume[volume.name]" :size="14" class="animate-spin" />
-                      <Eye v-else :size="14" />
-                      <span class="hidden sm:inline">Browse</span>
-                    </button>
+                    <div v-if="!showVolumeMenu[volume.name]" class="inline-flex gap-2">
+                      <button
+                        @click="showVolumeMenu[volume.name] = true"
+                        :disabled="browsingVolume[volume.name]"
+                        class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-lg font-semibold shadow-sm hover:shadow-md disabled:shadow-none transition-all active:scale-95 disabled:transform-none disabled:cursor-not-allowed text-xs sm:text-sm">
+                        <Loader2 v-if="browsingVolume[volume.name]" :size="14" class="animate-spin" />
+                        <Eye v-else :size="14" />
+                        <span class="hidden sm:inline">Browse</span>
+                      </button>
+                    </div>
+                    
+                    <!-- Two option buttons -->
+                    <div v-else class="inline-flex gap-2 animate-in fade-in">
+                      <button
+                        @click="browseVolume(volume.name, 60)"
+                        :disabled="browsingVolume[volume.name]"
+                        :title="'Temporary (1 hour)'"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-lg font-semibold shadow-sm hover:shadow-md disabled:shadow-none transition-all active:scale-95 disabled:transform-none disabled:cursor-not-allowed text-xs sm:text-sm group">
+                        <span class="text-base">⏱️</span>
+                        <span class="hidden lg:inline">Temporary</span>
+                      </button>
+                      <button
+                        @click="browseVolume(volume.name, 0)"
+                        :disabled="browsingVolume[volume.name]"
+                        :title="'Permanent (no expiry)'"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white rounded-lg font-semibold shadow-sm hover:shadow-md disabled:shadow-none transition-all active:scale-95 disabled:transform-none disabled:cursor-not-allowed text-xs sm:text-sm group">
+                        <span class="text-base">♾️</span>
+                        <span class="hidden lg:inline">Permanent</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>

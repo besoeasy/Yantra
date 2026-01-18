@@ -1564,7 +1564,8 @@ app.get("/api/volumes", async (req, res) => {
 // POST /api/volumes/:name/browse - Start a dufs container to browse a volume
 app.post("/api/volumes/:name/browse", async (req, res) => {
   const volumeName = req.params.name;
-  log("info", `🔍 [POST /api/volumes/${volumeName}/browse] Starting volume browser`);
+  const expiryMinutes = parseInt(req.body.expiryMinutes) || 0; // 0 means no expiry
+  log("info", `🔍 [POST /api/volumes/${volumeName}/browse] Starting volume browser${expiryMinutes > 0 ? ` with ${expiryMinutes}m expiry` : ' (no expiry)'}`);
 
   try {
     // Check if volume exists
@@ -1627,14 +1628,23 @@ app.post("/api/volumes/:name/browse", async (req, res) => {
     // Create new browser container
     const containerName = `yantra-v-${volumeName}`;
 
+    // Prepare labels
+    const labels = {
+      "yantra.volume-browser": volumeName,
+      "yantra.managed": "true",
+    };
+
+    // Add expiry label if specified
+    if (expiryMinutes > 0) {
+      const expiryTimestamp = Math.floor(Date.now() / 1000) + (expiryMinutes * 60);
+      labels["yantra.expireAt"] = expiryTimestamp.toString();
+    }
+
     const container = await docker.createContainer({
       Image: imageName,
       name: containerName,
       Cmd: ["/data", "--enable-cors", "--allow-all"],
-      Labels: {
-        "yantra.volume-browser": volumeName,
-        "yantra.managed": "true",
-      },
+      Labels: labels,
       HostConfig: {
         Binds: [`${volumeName}:/data`],
         PortBindings: {
