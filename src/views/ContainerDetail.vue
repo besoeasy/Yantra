@@ -400,8 +400,9 @@ onUnmounted(() => {
         </div>
 
         <!-- Ports & Access Section -->
-        <div v-if="allPortMappings.length > 0" class="space-y-3 sm:space-y-4">
-          <div class="flex items-center gap-2.5 sm:gap-3">
+        <div v-if="allPortMappings.length > 0" 
+          class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 transition-shadow hover:shadow-md">
+          <div class="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
             <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100">
               <Network :size="16" class="sm:w-5 sm:h-5 text-indigo-600" />
             </div>
@@ -409,115 +410,104 @@ onUnmounted(() => {
             <span class="text-xs sm:text-sm text-gray-500 font-medium">({{ allPortMappings.length }})</span>
           </div>
           
-          <!-- Labeled Ports Grid -->
-          <div v-if="labeledPorts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-            <a v-for="(mapping, index) in labeledPorts" :key="'labeled-' + index"
-              :href="mapping.hostPort && mapping.protocol === 'tcp' ? appUrl(mapping.hostPort, mapping.labeledProtocol || 'http') : undefined"
-              :target="mapping.hostPort && mapping.protocol === 'tcp' ? '_blank' : undefined"
-              class="group relative overflow-hidden rounded-xl bg-white border transition-all duration-200 animate-in"
-              :class="[
-                mapping.label ? 'border-indigo-200/60 hover:border-indigo-300' : 'border-gray-200 hover:border-gray-300',
-                mapping.hostPort && mapping.protocol === 'tcp'
-                  ? 'cursor-pointer hover:shadow-md'
-                  : 'cursor-not-allowed opacity-60'
-              ]"
-              :style="{ animationDelay: `${Math.min(index * 30, 400)}ms` }">
-              
-              <!-- Top colored bar -->
-              <div class="h-1" :class="mapping.label ? 'bg-linear-to-r from-indigo-500 to-purple-500' : 'bg-gray-200'"></div>
-              
-              <div class="p-4">
-                <!-- Header Row -->
-                <div class="flex items-start justify-between gap-3 mb-3">
-                  <div class="flex-1 min-w-0">
-                    <!-- Port Number -->
-                    <div class="flex items-baseline gap-2 mb-1">
-                      <span v-if="mapping.hostPort" class="text-3xl font-black text-gray-900 font-mono leading-none tracking-tighter">
+          <!-- Ports Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b-2 border-gray-200">
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    <div class="flex items-center gap-2">
+                      <Network :size="14" class="text-indigo-600" />
+                      Protocol
+                    </div>
+                  </th>
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Host Port
+                  </th>
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide hidden md:table-cell">
+                    Container Port
+                  </th>
+                  <th class="text-left py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide hidden lg:table-cell">
+                    Description
+                  </th>
+                  <th class="text-center py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    Access
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(mapping, index) in allPortMappings" :key="index"
+                  class="border-b border-gray-100 transition-colors animate-in"
+                  :class="[
+                    mapping.hostPort && mapping.protocol === 'tcp' 
+                      ? 'hover:bg-indigo-50/30 cursor-pointer' 
+                      : 'opacity-60'
+                  ]"
+                  :style="{ animationDelay: `${Math.min(index * 20, 400)}ms` }"
+                  @click="mapping.hostPort && mapping.protocol === 'tcp' ? window.open(appUrl(mapping.hostPort, mapping.labeledProtocol || 'http'), '_blank') : null">
+                  
+                  <!-- Protocol Column -->
+                  <td class="py-3 px-2 sm:px-4">
+                    <div class="flex items-center gap-2">
+                      <component
+                        :is="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).icon"
+                        :size="18"
+                        :class="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color"
+                      />
+                      <span class="text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap"
+                        :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg, getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color]">
+                        {{ getProtocolInfo(mapping.protocol, mapping.labeledProtocol).label }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <!-- Host Port Column -->
+                  <td class="py-3 px-2 sm:px-4">
+                    <div class="flex flex-col gap-1">
+                      <span v-if="mapping.hostPort" class="text-xl sm:text-2xl font-black text-gray-900 font-mono leading-none tracking-tight">
                         {{ mapping.hostPort }}
                       </span>
-                      <span v-else class="text-base text-gray-400 font-medium">Not bound</span>
+                      <span v-else class="text-sm text-gray-400 font-medium">Not bound</span>
+                      <span class="text-[10px] sm:text-xs text-gray-500 font-mono md:hidden">
+                        → :{{ mapping.containerPort }}
+                      </span>
                     </div>
-                    
-                    <!-- Container Port -->
-                    <div class="flex items-center gap-1.5 text-xs text-gray-500 font-mono">
-                      <span class="text-gray-400">→</span>
-                      <span>:{{ mapping.containerPort }}</span>
-                    </div>
-                  </div>
+                  </td>
                   
-                  <!-- Protocol Badge -->
-                  <div class="flex flex-col items-end gap-1.5">
-                    <component
-                      :is="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).icon"
-                      :size="20"
-                      :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color, 'transition-transform group-hover:scale-110']"
-                    />
-                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                      :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg, getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color]">
-                      {{ getProtocolInfo(mapping.protocol, mapping.labeledProtocol).label }}
+                  <!-- Container Port Column (hidden on mobile) -->
+                  <td class="py-3 px-2 sm:px-4 hidden md:table-cell">
+                    <span class="text-sm sm:text-base text-gray-700 font-mono">
+                      :{{ mapping.containerPort }}
                     </span>
-                  </div>
-                </div>
-                
-                <!-- Description -->
-                <div v-if="mapping.label" class="pt-2 border-t border-gray-100">
-                  <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-                    {{ mapping.label }}
-                  </p>
-                </div>
-                
-                <!-- Hover overlay for clickable items -->
-                <div v-if="mapping.hostPort && mapping.protocol === 'tcp'"
-                  class="absolute inset-0 bg-linear-to-br from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-indigo-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 pointer-events-none">
-                </div>
-              </div>
-            </a>
-          </div>
-          
-          <!-- Unlabeled Ports Grid -->
-          <div v-if="unlabeledPorts.length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
-            <a v-for="(mapping, index) in unlabeledPorts" :key="'unlabeled-' + index"
-              :href="mapping.hostPort && mapping.protocol === 'tcp' ? appUrl(mapping.hostPort, mapping.labeledProtocol || 'http') : undefined"
-              :target="mapping.hostPort && mapping.protocol === 'tcp' ? '_blank' : undefined"
-              class="group relative overflow-hidden rounded-xl bg-white border transition-all duration-200 animate-in border-gray-200 hover:border-gray-300"
-              :class="[
-                mapping.hostPort && mapping.protocol === 'tcp'
-                  ? 'cursor-pointer hover:shadow-md'
-                  : 'cursor-not-allowed opacity-60'
-              ]"
-              :style="{ animationDelay: `${Math.min((labeledPorts.length + index) * 30, 400)}ms` }">
-              
-              <div class="h-1 bg-gray-200"></div>
-              
-              <div class="p-3">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                  <component
-                    :is="getProtocolInfo(mapping.protocol, mapping.labeledProtocol).icon"
-                    :size="16"
-                    :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color, 'transition-transform group-hover:scale-110']"
-                  />
-                  <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                    :class="[getProtocolInfo(mapping.protocol, mapping.labeledProtocol).bg, getProtocolInfo(mapping.protocol, mapping.labeledProtocol).color]">
-                    {{ getProtocolInfo(mapping.protocol, mapping.labeledProtocol).label }}
-                  </span>
-                </div>
-                
-                <div class="mb-1">
-                  <span v-if="mapping.hostPort" class="text-2xl font-black text-gray-900 font-mono leading-none tracking-tighter">
-                    {{ mapping.hostPort }}
-                  </span>
-                  <span v-else class="text-sm text-gray-400 font-medium">Not bound</span>
-                </div>
-                
-                <div class="text-[10px] text-gray-500 font-mono">
-                  <span class="text-gray-400">→</span> :{{ mapping.containerPort }}
-                </div>
-              </div>
-              
-              <div v-if="mapping.hostPort && mapping.protocol === 'tcp'"
-                class="absolute inset-0 bg-linear-to-br from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-indigo-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 pointer-events-none">
-              </div>
-            </a>
+                  </td>
+                  
+                  <!-- Description Column (hidden on mobile/tablet) -->
+                  <td class="py-3 px-2 sm:px-4 hidden lg:table-cell">
+                    <span v-if="mapping.label" class="text-xs sm:text-sm text-gray-600">
+                      {{ mapping.label }}
+                    </span>
+                    <span v-else class="text-xs sm:text-sm text-gray-400 italic">
+                      —
+                    </span>
+                  </td>
+                  
+                  <!-- Access Column -->
+                  <td class="py-3 px-2 sm:px-4 text-center">
+                    <a v-if="mapping.hostPort && mapping.protocol === 'tcp'"
+                      :href="appUrl(mapping.hostPort, mapping.labeledProtocol || 'http')"
+                      target="_blank"
+                      @click.stop
+                      class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow-sm hover:shadow-md transition-all active:scale-95 text-xs sm:text-sm group">
+                      <span class="hidden sm:inline">Open</span>
+                      <ExternalLink :size="14" class="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </a>
+                    <span v-else class="text-xs text-gray-400 font-medium">
+                      N/A
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
