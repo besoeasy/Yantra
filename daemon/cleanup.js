@@ -84,8 +84,8 @@ export async function cleanupExpiredApps() {
               if (await composeFile.exists()) {
                 log("info", `Removing compose stack: ${composeProject}`);
 
-                // Execute docker compose down with volume removal
-                const proc = Bun.spawn(["docker", "compose", "down", "-v"], {
+                // Execute docker compose down without volume removal
+                const proc = Bun.spawn(["docker", "compose", "down"], {
                   cwd: appPath,
                   env: {
                     ...process.env,

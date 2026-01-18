@@ -1352,7 +1352,7 @@ app.delete("/api/containers/:id", async (req, res) => {
           log("info", `🗑️  [DELETE /api/containers/:id] Found managed app at ${appPath}, shutting down stack...`);
 
           // Execute docker compose down with project name to target specific instance
-          const proc = Bun.spawn(["docker", "compose", "-p", composeProject, "down", "-v"], {
+          const proc = Bun.spawn(["docker", "compose", "-p", composeProject, "down"], {
             cwd: appPath,
             env: {
               ...process.env,
@@ -1399,29 +1399,13 @@ app.delete("/api/containers/:id", async (req, res) => {
     log("info", `🗑️  [DELETE /api/containers/:id] Removing container...`);
     await container.remove();
 
-    // Remove volumes
-    const removedVolumes = [];
-    const failedVolumes = [];
-
-    for (const volumeName of volumeNames) {
-      try {
-        log("info", `🗑️  [DELETE /api/containers/:id] Removing volume: ${volumeName}`);
-        const volume = docker.getVolume(volumeName);
-        await volume.remove();
-        removedVolumes.push(volumeName);
-      } catch (err) {
-        log("error", `⚠️  [DELETE /api/containers/:id] Failed to remove volume ${volumeName}:`, err.message);
-        failedVolumes.push({ name: volumeName, error: err.message });
-      }
-    }
-
-    log("info", `✅ [DELETE /api/containers/:id] Successfully removed ${containerName}`);
+    // Volumes are preserved - they can be deleted manually from the Volumes page
+    log("info", `✅ [DELETE /api/containers/:id] Successfully removed ${containerName}. Volumes preserved: ${volumeNames.join(', ')}`);
     res.json({
       success: true,
       message: `Container '${containerName}' removed successfully`,
       container: containerName,
-      volumesRemoved: removedVolumes,
-      volumesFailed: failedVolumes,
+      volumesPreserved: volumeNames,
     });
   } catch (error) {
     log("error", `❌ [DELETE /api/containers/:id] Error:`, error.message);
@@ -1490,13 +1474,26 @@ app.get("/api/volumes", async (req, res) => {
     const volumes = await docker.listVolumes();
     const volumeList = volumes.Volumes || [];
 
-    // Check if any volume has an active dufs browser container
+    // Get all containers to check which volumes are in use
     const containers = await docker.listContainers({ all: true });
+    
+    // Check if any volume has an active dufs browser container
     const browsedVolumes = new Set();
+    // Track which volumes are mounted by containers
+    const usedVolumeNames = new Set();
 
     containers.forEach((container) => {
       if (container.Labels && container.Labels["yantra.volume-browser"]) {
         browsedVolumes.add(container.Labels["yantra.volume-browser"]);
+      }
+      
+      // Add all mounted volumes to the used set
+      if (container.Mounts) {
+        container.Mounts.forEach((mount) => {
+          if (mount.Type === "volume" && mount.Name) {
+            usedVolumeNames.add(mount.Name);
+          }
+        });
       }
     });
 
@@ -1507,12 +1504,22 @@ app.get("/api/volumes", async (req, res) => {
       createdAt: vol.CreatedAt,
       labels: vol.Labels || {},
       isBrowsing: browsedVolumes.has(vol.Name),
+      isUsed: usedVolumeNames.has(vol.Name),
     }));
 
-    log("info", `✅ [GET /api/volumes] Found ${enrichedVolumes.length} volumes`);
+    // Separate used and unused volumes
+    const usedVolumes = enrichedVolumes.filter(v => v.isUsed).sort((a, b) => a.name.localeCompare(b.name));
+    const unusedVolumes = enrichedVolumes.filter(v => !v.isUsed).sort((a, b) => a.name.localeCompare(b.name));
+
+    log("info", `✅ [GET /api/volumes] Found ${enrichedVolumes.length} volumes (${usedVolumes.length} used, ${unusedVolumes.length} unused)`);
     res.json({
       success: true,
+      total: enrichedVolumes.length,
+      used: usedVolumes.length,
+      unused: unusedVolumes.length,
       volumes: enrichedVolumes,
+      usedVolumes: usedVolumes,
+      unusedVolumes: unusedVolumes,
     });
   } catch (error) {
     log("error", "❌ [GET /api/volumes] Error:", error.message);
@@ -1671,6 +1678,51 @@ app.delete("/api/volumes/:name/browse", async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message,
+    });
+  }
+});
+
+// DELETE /api/volumes/:name - Remove a Docker volume
+app.delete("/api/volumes/:name", async (req, res) => {
+  const volumeName = req.params.name;
+  log("info", `🗑️  [DELETE /api/volumes/:name] Remove request for volume: ${volumeName}`);
+
+  try {
+    const volume = docker.getVolume(volumeName);
+    
+    // Try to inspect the volume first to ensure it exists
+    try {
+      await volume.inspect();
+    } catch (err) {
+      return res.status(404).json({
+        success: false,
+        error: "Volume not found",
+        message: `Volume '${volumeName}' does not exist`,
+      });
+    }
+
+    // Remove the volume
+    log("info", `🗑️  [DELETE /api/volumes/:name] Removing volume...`);
+    await volume.remove();
+    
+    log("info", `✅ [DELETE /api/volumes/:name] Successfully removed volume: ${volumeName}`);
+    res.json({
+      success: true,
+      message: `Volume '${volumeName}' removed successfully`,
+      volume: volumeName,
+    });
+  } catch (error) {
+    log("error", `❌ [DELETE /api/volumes/:name] Error:`, error.message);
+    
+    // Check if volume is in use
+    const isInUseError = error.message && error.message.includes("in use");
+    
+    res.status(500).json({
+      success: false,
+      error: isInUseError ? "Volume is in use" : "Failed to remove volume",
+      message: isInUseError 
+        ? `Volume '${volumeName}' is currently in use by a container and cannot be deleted` 
+        : error.message,
     });
   }
 });
