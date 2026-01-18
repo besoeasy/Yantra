@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { Box, Boxes, Layers, HardDrive, ClipboardList, Send, Github, Heart } from 'lucide-vue-next'
+import { Box, Boxes, Layers, HardDrive, ClipboardList, Send, Github, Heart, Home } from 'lucide-vue-next'
 
 const route = useRoute()
 
@@ -18,6 +18,16 @@ const isActive = (name) => route.name === name
 
       <!-- Navigation -->
       <nav class="flex flex-col items-center gap-3 mb-auto">
+        <!-- Home Tab -->
+        <router-link 
+          to="/home"
+          :class="isActive('home') ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/20' : 'text-gray-600 hover:bg-gray-100 hover:shadow-md hover:shadow-gray-900/10'"
+          class="nav-item group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ease-out smooth-shadow"
+          title="Home">
+          <Home :size="20" class="group-hover:scale-110 transition-transform duration-300" />
+          <span class="absolute left-full ml-3 px-3 py-1.5 bg-gray-900 text-white text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">Home</span>
+        </router-link>
+
         <!-- Apps Tab -->
         <router-link 
           to="/apps"
@@ -106,6 +116,15 @@ const isActive = (name) => route.name === name
     <!-- Mobile Bottom Navigation -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
       <div class="flex items-center justify-around px-2 py-3">
+        <router-link 
+          to="/home"
+          :class="isActive('home') ? 'bg-gray-900 text-white' : 'text-gray-600'"
+          class="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all active:scale-95"
+          title="Home">
+          <Home :size="20" />
+          <span class="text-xs font-medium">Home</span>
+        </router-link>
+
         <router-link 
           to="/apps"
           :class="isActive('apps') ? 'bg-gray-900 text-white' : 'text-gray-600'"

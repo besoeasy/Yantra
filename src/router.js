@@ -5,7 +5,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/containers'
+      redirect: '/home'
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: () => import(/* webpackChunkName: "home" */ './views/Home.vue')
     },
     {
       path: '/apps',
