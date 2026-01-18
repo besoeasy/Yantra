@@ -45,6 +45,10 @@ RUN chmod +x ./daemon/entrypoint.sh ./daemon/updater.sh
 # Expose port
 EXPOSE 5252
 
+# Healthcheck used by the self-updater to validate the new container started correctly
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+	CMD wget -qO- http://127.0.0.1:5252/api/health >/dev/null 2>&1 || exit 1
+
 # Environment
 ENV PORT=5252
 ENV NODE_ENV=production

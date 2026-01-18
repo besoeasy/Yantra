@@ -409,6 +409,16 @@ app.get("/api/version", (req, res) => {
   });
 });
 
+// GET /api/health - Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    version: packageJson.version,
+  });
+});
+
 // GET /api/logs - Get stored logs
 app.get("/api/logs", (req, res) => {
   const limit = parseInt(req.query.limit) || MAX_LOGS;

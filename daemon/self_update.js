@@ -14,6 +14,26 @@ function env(name, defaultValue) {
   return v == null || v === "" ? defaultValue : v;
 }
 
+async function sleep(ms) {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+async function waitForHealthy(container, timeoutMs) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const info = await container.inspect();
+    const status = info?.State?.Health?.Status;
+    if (!status) {
+      // No HEALTHCHECK configured; treat "running" as good enough.
+      if (info?.State?.Running) return;
+    }
+    if (status === "healthy") return;
+    if (status === "unhealthy") throw new Error("container reported unhealthy");
+    await sleep(500);
+  }
+  throw new Error(`health timeout after ${timeoutMs}ms`);
+}
+
 async function pullImage(imageRef) {
   return await new Promise((resolve, reject) => {
     docker.pull(imageRef, (err, stream) => {
@@ -48,6 +68,7 @@ async function main() {
 
   const containerName = env("YANTRA_CONTAINER_NAME", "yantra");
   const imageRef = env("YANTRA_IMAGE", "ghcr.io/besoeasy/yantra:latest");
+  const healthTimeoutMs = Number(env("YANTRA_AUTO_UPDATE_HEALTH_TIMEOUT_MS", "60000"));
 
   if (!(await containerExists(containerName))) {
     process.stderr.write(`Target container '${containerName}' not found; skipping\n`);
@@ -145,6 +166,9 @@ async function main() {
 
     process.stdout.write(`Starting '${tmpName}'...\n`);
     await tmpContainer.start();
+
+    process.stdout.write("Waiting for healthy...\n");
+    await waitForHealthy(tmpContainer, Number.isFinite(healthTimeoutMs) ? healthTimeoutMs : 60000);
 
     process.stdout.write(`Renaming '${tmpName}' → '${oldName}'...\n`);
     await tmpContainer.rename({ name: oldName });
