@@ -281,20 +281,35 @@ onUnmounted(() => {
 
           <!-- Divider Card -->
           <div v-if="volumeBrowsers.length > 0" 
-               class="col-span-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border-2 border-purple-200">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <Package :size="20" class="text-purple-600" />
+               class="col-span-full relative overflow-hidden rounded-3xl p-px">
+            <!-- Gradient border -->
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 rounded-3xl"></div>
+            
+            <!-- Inner content with glassmorphism -->
+            <div class="relative bg-white/95 backdrop-blur-xl rounded-3xl p-6">
+              <!-- Subtle gradient overlay -->
+              <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-transparent to-blue-50/50 rounded-3xl"></div>
+              
+              <div class="relative flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  
+                  <div>
+                    <h3 class="text-2xl font-bold text-gray-900 tracking-tight mb-1">Open Volumes</h3>
+                    <p class="text-sm text-gray-600 font-medium flex items-center gap-1.5">
+                      <span class="text-base">💡</span>
+                      <span>Temporary file browsers • Safe to close anytime</span>
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="text-xl font-bold text-gray-900">Open Volumes</h3>
-                  <p class="text-sm text-purple-700">💡 Safe to close - these are temporary file browsers</p>
+                
+                <!-- Badge with subtle animation -->
+                <div class="relative">
+                  <div class="absolute inset-0 bg-purple-400 rounded-2xl blur-md opacity-20"></div>
+                  <div class="relative px-4 py-2 bg-gradient-to-br from-purple-100 to-indigo-100 border border-purple-200/50 text-purple-700 rounded-2xl font-bold tracking-tight shadow-sm">
+                    {{ volumeBrowsers.length }} <span class="font-normal">active</span>
+                  </div>
                 </div>
               </div>
-              <span class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold">
-                {{ volumeBrowsers.length }} active
-              </span>
             </div>
           </div>
 
@@ -302,38 +317,52 @@ onUnmounted(() => {
           <div v-for="(container, index) in volumeBrowsers" :key="container.id"
             :style="{ animationDelay: `${(regularContainers.length + index) * 50}ms` }"
             @click="viewContainerDetail(container)"
-            class="group bg-purple-50 rounded-xl p-5 border border-purple-200 hover:border-purple-300 hover:shadow-lg transition-all duration-200 cursor-pointer animate-fadeIn">
+            class="group relative overflow-hidden rounded-2xl cursor-pointer animate-fadeIn hover-lift">
             
-            <div class="flex items-start gap-4 mb-4">
-              <div class="shrink-0">
-                <span class="text-4xl">📦</span>
-              </div>
-              
-              <div class="flex-1 min-w-0">
-                <h3 class="font-bold text-lg text-gray-900 truncate mb-1">
-                  {{ container.labels['yantra.volume-browser'] }}
-                </h3>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <div :class="container.state === 'running' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
-                    class="px-2 py-0.5 rounded-md text-xs font-semibold inline-flex items-center gap-1">
-                    <span :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
-                      class="w-1.5 h-1.5 rounded-full"></span>
-                    {{ container.state }}
-                  </div>
-                  <div v-if="container.state === 'running' && formatUptime(container)"
-                    class="px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 inline-flex items-center gap-1">
-                    <Activity :size="12" />
-                    {{ formatUptime(container) }}
+            <!-- Glassmorphic background -->
+            <div class="absolute inset-0 bg-gradient-to-br from-white via-purple-50/50 to-indigo-50/50 backdrop-blur-sm"></div>
+            
+            <!-- Border gradient -->
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-200/60 via-indigo-200/40 to-blue-200/60 rounded-2xl opacity-100 group-hover:opacity-0 transition-opacity duration-300"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-400 via-indigo-400 to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            <!-- Content -->
+            <div class="relative m-px bg-white/90 backdrop-blur-xl rounded-2xl p-5">
+              <div class="flex items-start gap-4 mb-4">
+                
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-lg text-gray-900 truncate mb-2 group-hover:text-purple-900 transition-colors">
+                    {{ container.labels['yantra.volume-browser'] }}
+                  </h3>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <!-- Status badge -->
+                    <div :class="container.state === 'running' ? 'bg-green-500/10 text-green-700 border-green-500/20' : 'bg-gray-500/10 text-gray-600 border-gray-500/20'"
+                      class="px-2.5 py-1 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 border backdrop-blur-sm">
+                      <span :class="container.state === 'running' ? 'bg-green-500' : 'bg-gray-400'" 
+                        class="w-1.5 h-1.5 rounded-full shadow-sm"
+                        :style="container.state === 'running' ? 'box-shadow: 0 0 4px rgba(34, 197, 94, 0.6)' : ''"></span>
+                      {{ container.state }}
+                    </div>
+                    
+                    <!-- Uptime badge -->
+                    <div v-if="container.state === 'running' && formatUptime(container)"
+                      class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-500/10 text-blue-700 border border-blue-500/20 inline-flex items-center gap-1.5 backdrop-blur-sm">
+                      <Activity :size="12" />
+                      {{ formatUptime(container) }}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div class="mt-4 pt-4 border-t border-purple-200 flex items-center justify-between">
-              <span class="text-sm text-purple-700 group-hover:text-purple-900 font-medium transition-colors">
-                View Details
-              </span>
-              <ArrowRight :size="16" class="text-purple-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
+              <!-- Footer with smooth hover effect -->
+              <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-sm text-gray-600 group-hover:text-purple-700 font-semibold transition-colors">
+                  View Details
+                </span>
+                <div class="w-8 h-8 rounded-full bg-purple-100/50 group-hover:bg-purple-500 flex items-center justify-center transition-all duration-300">
+                  <ArrowRight :size="16" class="text-purple-600 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -358,5 +387,33 @@ onUnmounted(() => {
 .animate-fadeIn {
   opacity: 0;
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Apple-like hover lift effect */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15), 0 8px 16px -8px rgba(124, 58, 237, 0.2);
+}
+
+.hover-lift:active {
+  transform: translateY(-2px) scale(1);
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth backdrop blur support */
+@supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
+  .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+  
+  .backdrop-blur-sm {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
 }
 </style>
