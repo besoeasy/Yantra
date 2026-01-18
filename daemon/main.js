@@ -1474,47 +1474,19 @@ app.get("/api/volumes", async (req, res) => {
     const volumes = await docker.listVolumes();
     const volumeList = volumes.Volumes || [];
 
-    // Get volume sizes using docker system df -v
+    // Get volume sizes using dockerode df() method
     let volumeSizes = {};
     try {
-      const dfProc = Bun.spawn(["docker", "system", "df", "-v", "--format", "{{json .}}"], {
-        env: {
-          ...process.env,
-          DOCKER_HOST: `unix://${socketPath}`,
-        },
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-
-      const dfOutput = await new Response(dfProc.stdout).text();
-      await dfProc.exited;
-
-      // Parse the JSON output - single large JSON object with Volumes array
-      if (dfOutput.trim()) {
-        const data = JSON.parse(dfOutput.trim());
-        
-        // Extract volumes with their sizes from the Volumes array
-        if (data.Volumes && Array.isArray(data.Volumes)) {
-          data.Volumes.forEach(vol => {
-            if (vol.Name && vol.Size) {
-              // Parse size string (e.g., "1.721GB", "2.713kB", "105MB")
-              const sizeStr = vol.Size;
-              let sizeBytes = 0;
-              
-              if (sizeStr.includes('GB')) {
-                sizeBytes = parseFloat(sizeStr) * 1024 * 1024 * 1024;
-              } else if (sizeStr.includes('MB')) {
-                sizeBytes = parseFloat(sizeStr) * 1024 * 1024;
-              } else if (sizeStr.includes('kB') || sizeStr.includes('KB')) {
-                sizeBytes = parseFloat(sizeStr) * 1024;
-              } else if (sizeStr.includes('B')) {
-                sizeBytes = parseFloat(sizeStr);
-              }
-              
-              volumeSizes[vol.Name] = sizeBytes;
-            }
-          });
-        }
+      const dfData = await docker.df();
+      
+      // Extract volume sizes from the df response
+      if (dfData.Volumes && Array.isArray(dfData.Volumes)) {
+        dfData.Volumes.forEach(vol => {
+          if (vol.Name && vol.UsageData && vol.UsageData.Size !== undefined) {
+            // Size is already in bytes
+            volumeSizes[vol.Name] = vol.UsageData.Size;
+          }
+        });
       }
     } catch (dfError) {
       log("warn", "⚠️  [GET /api/volumes] Could not get volume sizes:", dfError.message);
