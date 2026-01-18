@@ -46,6 +46,13 @@ export async function cleanupExpiredApps() {
     const containers = await docker.listContainers({ all: true });
     results.checked = containers.length;
 
+    // Early exit if no containers have expiration labels
+    const hasExpiredContainers = containers.some(c => c.Labels?.["yantra.expireAt"]);
+    if (!hasExpiredContainers) {
+      log("info", "No temporary apps found, skipping cleanup");
+      return results;
+    }
+
     log("info", `Checking ${containers.length} containers for expiration`);
 
     const now = Math.floor(Date.now() / 1000); // Current Unix timestamp
@@ -184,6 +191,11 @@ export function startCleanupScheduler(intervalMinutes = 60) {
   const intervalMs = intervalMinutes * 60 * 1000;
 
   log("info", `Starting cleanup scheduler (runs every ${intervalMinutes} minutes)`);
+
+  // Run initial cleanup on startup
+  cleanupExpiredApps().catch((err) => {
+    log("error", `Initial cleanup failed: ${err.message}`);
+  });
 
   // Run cleanup on interval
   setInterval(() => {
